@@ -3231,6 +3231,7 @@ function renderIndicator() {
 
         function checkAnswer() {
           if (state.status !== 'indicator_stopped') return;
+          const uiText = getUiText(config);
           const question = getCurrentQuestion();
           const isCorrect = state.currentRound.selectedIndex === question.correct_index;
           const perfectHit = isPerfectHit(question, state.currentRound.selectedIndex);
