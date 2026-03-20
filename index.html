@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -3671,6 +3671,10 @@ function renderIndicator() {
           resetState();
           loadQuestion(0);
           render();
+          if (options.static) {
+            setStatus('question_ready');
+            return;
+          }
           startIndicator();
           if (!rafId) rafId = requestAnimationFrame(tick);
           if (options.autoplay) {
@@ -3858,7 +3862,7 @@ function renderIndicator() {
             previewConfig.content.locale = previewLocale;
             const previewQuestions = getQuestionsForLocale(previewLocale);
             window.MomentOfTruth.init(previewConfig, previewQuestions, '#moment-of-truth-root');
-            window.MomentOfTruth.preview('game');
+            window.MomentOfTruth.preview('game', { static: true });
           }, 160);
           return;
         }
