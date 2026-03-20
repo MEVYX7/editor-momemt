@@ -1213,7 +1213,7 @@
         }
         frameWindow.MomentOfTruth.init(draft.config, buildPreviewQuestions(), '#moment-of-truth-root');
         if (typeof frameWindow.MomentOfTruth.preview === 'function') {
-          frameWindow.MomentOfTruth.preview('game', { autoplay: true });
+          frameWindow.MomentOfTruth.preview('game', { static: true });
         } else if (typeof frameWindow.MomentOfTruth.start === 'function') {
           frameWindow.MomentOfTruth.start();
         }
