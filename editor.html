@@ -313,9 +313,6 @@
       border-radius: 999px;
       background: linear-gradient(180deg, rgba(18, 32, 56, 0.96), rgba(10, 18, 31, 0.98));
       color: var(--editor-text);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
       font-family: var(--editor-tech);
       font-size: 13px;
       font-weight: 800;
@@ -323,7 +320,6 @@
       text-transform: uppercase;
       padding: 12px 18px;
       cursor: pointer;
-      text-decoration: none;
     }
 
     .editor-btn--primary {
@@ -519,7 +515,6 @@
         <button class="editor-btn editor-btn--primary" id="editor-apply" type="button">Применить</button>
         <button class="editor-btn" id="editor-reset" type="button">Сбросить</button>
         <button class="editor-btn" id="editor-export" type="button">Скачать JSON</button>
-        <a class="editor-btn" href="./index.html" target="_blank" rel="noopener">Открыть игру</a>
       </div>
     </aside>
 
@@ -533,7 +528,7 @@
       </div>
       <div class="editor-preview__frame-wrap" id="editor-preview-frame-wrap">
         <div class="editor-preview__stage" id="editor-preview-stage">
-          <iframe class="editor-preview__frame" id="editor-preview-frame" src="./index.html?editor=1&locale=ru" title="Предпросмотр игры"></iframe>
+          <iframe class="editor-preview__frame" id="editor-preview-frame" src="./index.html?locale=ru" title="Предпросмотр игры"></iframe>
         </div>
       </div>
     </section>
@@ -1233,7 +1228,7 @@
 
       function reloadPreviewFrame() {
         const previewPayload = encodeBase64UrlUnicode(buildPreviewPayload());
-        dom.frame.src = `./index.html?editor=1&locale=${encodeURIComponent(draft.locale)}&preview=${Date.now()}#mot=${previewPayload}`;
+        dom.frame.src = `./index.html?locale=${encodeURIComponent(draft.locale)}&preview=${Date.now()}#mot=${previewPayload}`;
       }
 
       function schedulePreview() {
