@@ -2106,49 +2106,9 @@
       .mot-btn--stop { width: 100%; }
       .mot-energy { min-width: 100%; }
     }
-    .mot-page-link {
-      position: fixed;
-      top: 18px;
-      right: 18px;
-      z-index: 30;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 42px;
-      padding: 10px 16px;
-      border-radius: 999px;
-      border: 1px solid rgba(101, 163, 214, 0.24);
-      background: linear-gradient(180deg, rgba(18, 32, 56, 0.88), rgba(10, 18, 31, 0.94));
-      color: #f5fbff;
-      font-family: var(--mot-font-tech);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-decoration: none;
-      text-transform: uppercase;
-      box-shadow: 0 10px 28px rgba(3, 10, 18, 0.28);
-      backdrop-filter: blur(14px);
-    }
-    .mot-page-link:hover {
-      border-color: rgba(162, 230, 255, 0.42);
-      transform: translateY(-1px);
-    }
-    .mot-page-link[hidden] {
-      display: none;
-    }
-    @media (max-width: 760px) {
-      .mot-page-link {
-        top: 12px;
-        right: 12px;
-        min-height: 38px;
-        padding: 8px 12px;
-        font-size: 11px;
-      }
-    }
   </style>
 </head>
 <body>
-  <a class="mot-page-link" id="moment-editor-link" href="./editor.html" hidden>Редактор</a>
   <div id="moment-of-truth-root"></div>
 
   <script src="./moment-data.js"></script>
@@ -3832,10 +3792,6 @@ function renderIndicator() {
 
       document.addEventListener('DOMContentLoaded', function () {
         const searchParams = new URLSearchParams(window.location.search);
-        const editorShortcut = document.getElementById('moment-editor-link');
-        if (editorShortcut) {
-          editorShortcut.hidden = searchParams.get('editor') === '1';
-        }
         const embeddedPayload = parseEmbeddedPayload();
         if (embeddedPayload) {
           const embeddedLocale = (embeddedPayload.config && embeddedPayload.config.content && embeddedPayload.config.content.locale) || embeddedPayload.locale || FALLBACK_LOCALE;
