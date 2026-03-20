@@ -1207,10 +1207,10 @@
           return;
         }
         frameWindow.MomentOfTruth.init(draft.config, buildPreviewQuestions(), '#moment-of-truth-root');
-        if (typeof frameWindow.MomentOfTruth.preview === 'function') {
-          frameWindow.MomentOfTruth.preview('game', { static: true });
-        } else if (typeof frameWindow.MomentOfTruth.start === 'function') {
+        if (typeof frameWindow.MomentOfTruth.start === 'function') {
           frameWindow.MomentOfTruth.start();
+        } else if (typeof frameWindow.MomentOfTruth.preview === 'function') {
+          frameWindow.MomentOfTruth.preview('game');
         }
         syncPreviewScale();
       }
