@@ -2119,6 +2119,7 @@
       const CONTENT_SOURCE = window.MomentOfTruthContent || {};
       const LOCALES = CONTENT_SOURCE.locales || {};
       const FALLBACK_LOCALE = CONTENT_SOURCE.defaultLocale || 'ru';
+      const publishedGameId = new URLSearchParams(window.location.search).get('id');
 
       function getLocalePack(localeCode) {
         return LOCALES[localeCode] || LOCALES[FALLBACK_LOCALE] || {};
@@ -3791,19 +3792,59 @@ function renderIndicator() {
 
       const demoQuestions = getQuestionsForLocale(FALLBACK_LOCALE);
 
-      document.addEventListener('DOMContentLoaded', function () {
+      async function fetchPublishedPayload(id) {
+        if (!id) return null;
+        const response = await fetch(`https://mevyx7.github.io/texts/data/${id}.json`, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`Failed to load published game (${response.status})`);
+        }
+        return response.json();
+      }
+
+      function initFromPayload(payload, options = {}) {
+        if (!payload || typeof payload !== 'object') return false;
+        const payloadLocale = (payload.config && payload.config.content && payload.config.content.locale) || payload.locale || FALLBACK_LOCALE;
+        const previewMode = payload.previewMode === 'calm' ? 'calm' : 'live';
+        const payloadConfig = deepMerge(
+          deepMerge({}, getLocalePack(payloadLocale).configPatch || {}),
+          payload.config || {}
+        );
+        payloadConfig.content = payloadConfig.content || {};
+        payloadConfig.content.locale = payloadLocale;
+        const payloadQuestions = Array.isArray(payload.questions) ? payload.questions : getQuestionsForLocale(payloadLocale);
+        window.MomentOfTruth.init(payloadConfig, payloadQuestions, '#moment-of-truth-root');
+        if (options.startPreview) {
+          if (previewMode === 'live' && typeof window.MomentOfTruth.start === 'function') {
+            window.MomentOfTruth.start();
+          } else if (typeof window.MomentOfTruth.preview === 'function') {
+            window.MomentOfTruth.preview('game', { static: true });
+          }
+        }
+        return true;
+      }
+
+      window.addEventListener('message', function (event) {
+        const message = event && event.data;
+        if (!message || message.type !== 'moment-of-truth-preview-update' || !message.payload || !window.MomentOfTruth) return;
+        initFromPayload(message.payload, { startPreview: true });
+      });
+
+      document.addEventListener('DOMContentLoaded', async function () {
         const searchParams = new URLSearchParams(window.location.search);
+        if (publishedGameId) {
+          try {
+            const publishedPayload = await fetchPublishedPayload(publishedGameId);
+            if (publishedPayload) {
+              initFromPayload(publishedPayload);
+              return;
+            }
+          } catch (error) {
+            console.error('Failed to load published game:', error);
+          }
+        }
         const embeddedPayload = parseEmbeddedPayload();
         if (embeddedPayload) {
-          const embeddedLocale = (embeddedPayload.config && embeddedPayload.config.content && embeddedPayload.config.content.locale) || embeddedPayload.locale || FALLBACK_LOCALE;
-          const embeddedConfig = deepMerge(
-            deepMerge({}, getLocalePack(embeddedLocale).configPatch || {}),
-            embeddedPayload.config || {}
-          );
-          embeddedConfig.content = embeddedConfig.content || {};
-          embeddedConfig.content.locale = embeddedLocale;
-          const embeddedQuestions = Array.isArray(embeddedPayload.questions) ? embeddedPayload.questions : getQuestionsForLocale(embeddedLocale);
-          window.MomentOfTruth.init(embeddedConfig, embeddedQuestions, '#moment-of-truth-root');
+          initFromPayload(embeddedPayload, { startPreview: searchParams.has('preview') });
           return;
         }
         if (searchParams.get('editor') === '1') {
