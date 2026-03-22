@@ -47,7 +47,8 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       grid-template-areas:
         "config config"
-        "preview questions";
+        "preview questions"
+        "publish publish";
       gap: 18px;
       align-items: start;
       min-height: 100vh;
@@ -362,14 +363,17 @@
     .editor-publish {
       display: grid;
       gap: 14px;
-      padding: 0 24px 24px;
-      border-top: 1px solid rgba(101, 163, 214, 0.10);
+      padding: 18px 24px 24px;
+    }
+
+    .editor-publish-panel {
+      grid-area: publish;
+      align-self: start;
     }
 
     .editor-publish__head {
       display: grid;
       gap: 6px;
-      padding-top: 18px;
     }
 
     .editor-publish__title {
@@ -618,7 +622,8 @@
         grid-template-areas:
           "config"
           "preview"
-          "questions";
+          "questions"
+          "publish";
       }
 
       .editor-body {
@@ -724,29 +729,6 @@
         <button class="editor-btn" id="editor-export" type="button">Скачать JSON</button>
       </div>
 
-      <section class="editor-publish">
-        <div class="editor-publish__head">
-          <h2 class="editor-publish__title">Публикация</h2>
-          <div class="editor-publish__meta">Публикует проект на сервер Render и собирает готовый `iframe` для Genially. После публикации GitHub Pages может обновиться не мгновенно.</div>
-        </div>
-        <div class="editor-publish__actions">
-          <button class="editor-btn editor-btn--primary" id="editor-generate-embed" type="button">Сохранить и получить iframe</button>
-          <button class="editor-btn" id="editor-copy-link" type="button">Скопировать ссылку</button>
-          <button class="editor-btn" id="editor-copy-iframe" type="button">Скопировать iframe</button>
-        </div>
-        <div class="editor-publish__box">
-          <label class="editor-field">
-            <span class="editor-publish__label">Ссылка</span>
-            <textarea class="editor-textarea editor-publish__code" id="editor-embed-link" readonly placeholder="Здесь появится ссылка для вставки"></textarea>
-          </label>
-        </div>
-        <div class="editor-publish__box">
-          <label class="editor-field">
-            <span class="editor-publish__label">Iframe-код</span>
-            <textarea class="editor-textarea editor-publish__code" id="editor-embed-code" readonly placeholder="Здесь появится iframe-код для Genially"></textarea>
-          </label>
-        </div>
-      </section>
     </aside>
 
     <section class="editor-panel editor-preview">
@@ -780,6 +762,30 @@
         <div class="editor-inline-actions">
           <button class="editor-btn editor-btn--accent" id="editor-add-question" type="button">Добавить вопрос</button>
         </div>
+      </div>
+    </section>
+
+    <section class="editor-panel editor-publish editor-publish-panel">
+      <div class="editor-publish__head">
+        <h2 class="editor-publish__title">Публикация</h2>
+        <div class="editor-publish__meta">Публикует проект на сервер Render и собирает готовый `iframe` для Genially. После публикации GitHub Pages может обновиться не мгновенно.</div>
+      </div>
+      <div class="editor-publish__actions">
+        <button class="editor-btn editor-btn--primary" id="editor-generate-embed" type="button">Сохранить и получить iframe</button>
+        <button class="editor-btn" id="editor-copy-link" type="button">Скопировать ссылку</button>
+        <button class="editor-btn" id="editor-copy-iframe" type="button">Скопировать iframe</button>
+      </div>
+      <div class="editor-publish__box">
+        <label class="editor-field">
+          <span class="editor-publish__label">Ссылка</span>
+          <textarea class="editor-textarea editor-publish__code" id="editor-embed-link" readonly placeholder="Здесь появится ссылка для вставки"></textarea>
+        </label>
+      </div>
+      <div class="editor-publish__box">
+        <label class="editor-field">
+          <span class="editor-publish__label">Iframe-код</span>
+          <textarea class="editor-textarea editor-publish__code" id="editor-embed-code" readonly placeholder="Здесь появится iframe-код для Genially"></textarea>
+        </label>
       </div>
     </section>
   </div>
