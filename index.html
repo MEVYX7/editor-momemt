@@ -1397,6 +1397,7 @@
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
+      overflow: auto;
       transition:
         opacity var(--mot-anim-mid) ease,
         visibility 0s linear var(--mot-anim-mid);
@@ -1412,9 +1413,10 @@
     .mot-intro__card {
       position: relative;
       width: min(100%, 860px);
+      max-height: calc(100vh - 48px);
       padding: 34px 34px 30px;
       border-radius: 28px;
-      overflow: hidden;
+      overflow: auto;
       text-align: center;
       background:
         linear-gradient(180deg, var(--mot-intro-card-top), var(--mot-intro-card-bottom)),
@@ -1430,6 +1432,8 @@
       transition:
         opacity var(--mot-anim-mid) ease,
         transform var(--mot-anim-slow) cubic-bezier(0.22, 1, 0.36, 1);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(73,216,255,0.32) rgba(7,14,25,0.55);
     }
     .mot-intro--visible .mot-intro__card {
       opacity: 1;
@@ -2057,6 +2061,52 @@
 
       .mot-inline-toast__text {
         font-size: 13px;
+      }
+
+      .mot-intro {
+        padding: 18px;
+      }
+
+      .mot-intro__card {
+        max-height: calc(100vh - 36px);
+        padding: 24px 22px 20px;
+      }
+
+      .mot-intro__subtitle {
+        margin-bottom: 18px;
+        font-size: 15px;
+      }
+
+      .mot-intro__stats {
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .mot-intro__stat {
+        padding: 14px 14px;
+      }
+
+      .mot-intro__hint {
+        padding: 13px 14px;
+        font-size: 14px;
+      }
+
+      .mot-intro__modes {
+        gap: 8px;
+        padding: 0 14px 14px;
+      }
+
+      .mot-intro__mode {
+        padding: 10px 10px 9px;
+      }
+
+      .mot-intro__mode-text {
+        font-size: 13px;
+      }
+
+      .mot-intro__actions {
+        gap: 12px;
+        padding: 14px 16px;
       }
     }
     @media (max-width: 820px) {
