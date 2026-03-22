@@ -674,6 +674,14 @@
               <select class="editor-select" id="editor-locale"></select>
             </label>
             <label class="editor-field">
+              <span class="editor-label">Название игры</span>
+              <input class="editor-input" id="editor-title-display" type="text" readonly />
+            </label>
+            <label class="editor-field">
+              <span class="editor-label">Подпись финиша</span>
+              <input class="editor-input" id="editor-finish-label-display" type="text" readonly />
+            </label>
+            <label class="editor-field">
               <span class="editor-label">Шаги до финиша</span>
               <input class="editor-input" id="editor-steps" type="number" min="1" max="20" />
             </label>
@@ -698,13 +706,6 @@
             </label>
           </div>
           <div class="editor-grid" style="margin-top: 12px;">
-            <label class="editor-field">
-              <div class="editor-subhead">
-                <span class="editor-label">Прозрачность</span>
-                <span class="editor-helper" id="editor-bg-transparency-value">0%</span>
-              </div>
-              <input class="editor-range" id="editor-bg-transparency" type="range" min="0" max="100" step="1" value="0" />
-            </label>
             <label class="editor-field" style="grid-column: 1 / -1;">
               <div class="editor-subhead">
                 <span class="editor-label">Сила неона</span>
@@ -713,7 +714,7 @@
               <input class="editor-range" id="editor-neon-intensity" type="range" min="0" max="100" step="1" value="48" />
             </label>
           </div>
-          <div class="editor-note editor-note--compact">Неон теперь влияет в первую очередь на свечение сцены, а не перекрашивает весь интерфейс. Так внешний вид остается аккуратным даже при ярких цветах.</div>
+          <div class="editor-note editor-note--compact">Фон теперь задается самой темой. Для более светлой сцены попробуй пресеты «Рассвет», «Небо» или «Жемчуг». Неон влияет в первую очередь на свечение сцены, а не перекрашивает весь интерфейс.</div>
         </section>
 
       </div>
@@ -721,7 +722,6 @@
       <div class="editor-actions">
         <button class="editor-btn editor-btn--primary" id="editor-apply" type="button">Применить</button>
         <button class="editor-btn" id="editor-reset" type="button">Сбросить</button>
-        <button class="editor-btn" id="editor-export" type="button">Скачать JSON</button>
       </div>
 
       </aside>
@@ -790,6 +790,8 @@
 
       const dom = {
         locale: document.getElementById('editor-locale'),
+        titleDisplay: document.getElementById('editor-title-display'),
+        finishLabelDisplay: document.getElementById('editor-finish-label-display'),
         steps: document.getElementById('editor-steps'),
         questionsList: document.getElementById('editor-questions-list'),
         addQuestion: document.getElementById('editor-add-question'),
@@ -805,8 +807,6 @@
         themePreset: document.getElementById('editor-theme-preset'),
         themeNeon: document.getElementById('editor-theme-neon'),
         themeText: document.getElementById('editor-theme-text'),
-        bgTransparency: document.getElementById('editor-bg-transparency'),
-        bgTransparencyValue: document.getElementById('editor-bg-transparency-value'),
         neonIntensity: document.getElementById('editor-neon-intensity'),
         neonIntensityValue: document.getElementById('editor-neon-intensity-value'),
         frameWrap: document.getElementById('editor-preview-frame-wrap'),
@@ -834,20 +834,12 @@
         });
         if (dom.apply) dom.apply.remove();
         if (dom.reset) dom.reset.textContent = 'Очистить';
-        if (dom.export) dom.export.textContent = 'Скачать проект';
         const previewMeta = document.querySelector('.editor-preview__meta');
         if (previewMeta) previewMeta.textContent = 'Слева виден экран игры с вопросами. Здесь удобно проверять вид сцены и интерфейса рядом с редактором вопросов.';
         const themePresetField = dom.themePreset ? dom.themePreset.closest('.editor-field') : null;
         if (themePresetField) {
           const presetLabel = themePresetField.querySelector('.editor-label');
           if (presetLabel) presetLabel.textContent = 'Тема';
-        }
-        const transparencyField = document.getElementById('editor-bg-transparency')
-          ? document.getElementById('editor-bg-transparency').closest('.editor-field')
-          : null;
-        const topThemeGrid = themePresetField ? themePresetField.closest('.editor-grid') : null;
-        if (themePresetField && transparencyField && topThemeGrid && transparencyField.parentElement !== topThemeGrid) {
-          themePresetField.insertAdjacentElement('afterend', transparencyField);
         }
       }
       normalizeEditorLayout();
@@ -914,6 +906,21 @@
           label: 'Роза',
           editor: { bg: '#170d15', panel: 'rgba(30, 15, 27, 0.92)', panelSoft: 'rgba(42, 20, 37, 0.9)', border: 'rgba(212, 125, 168, 0.16)', text: '#fff5fb', muted: '#c8a9bc', accent: '#ff7bb9', accent2: '#ff9bca' },
           game: { bg: '#160b13', bgDeep: '#08040a', text: '#fff5fb', top: '#24101f', mid: '#130913', bottom: '#08040a', panelTop: '#21101d', panelBottom: '#0a0509', neon: '#ff5ea8', accent: '#ff93c8', accentGlow: '#ff5ea8' }
+        },
+        dawn: {
+          label: 'Рассвет',
+          editor: { bg: '#1e1510', panel: 'rgba(36, 24, 18, 0.92)', panelSoft: 'rgba(49, 34, 24, 0.9)', border: 'rgba(240, 171, 122, 0.18)', text: '#fff8f2', muted: '#d3b19b', accent: '#ff9a5c', accent2: '#ffd36b' },
+          game: { bg: '#f4c9a6', bgDeep: '#e78a66', text: '#fff8f2', top: '#f7d6b8', mid: '#efb08d', bottom: '#de7f63', panelTop: '#6a3f33', panelBottom: '#40241e', neon: '#ff9a5c', accent: '#ffd36b', accentGlow: '#ffb27c' }
+        },
+        sky: {
+          label: 'Небо',
+          editor: { bg: '#101a23', panel: 'rgba(17, 30, 40, 0.92)', panelSoft: 'rgba(24, 40, 53, 0.9)', border: 'rgba(133, 187, 224, 0.18)', text: '#f6fbff', muted: '#a4bacf', accent: '#6bbcff', accent2: '#94e2ff' },
+          game: { bg: '#dcefff', bgDeep: '#9bc7ea', text: '#f8fcff', top: '#edf7ff', mid: '#c5e1f5', bottom: '#8fb9de', panelTop: '#29475f', panelBottom: '#173041', neon: '#69b9ff', accent: '#8fe4ff', accentGlow: '#7ed2ff' }
+        },
+        pearl: {
+          label: 'Жемчуг',
+          editor: { bg: '#17191d', panel: 'rgba(24, 26, 31, 0.92)', panelSoft: 'rgba(33, 37, 44, 0.9)', border: 'rgba(185, 196, 210, 0.18)', text: '#f8fbff', muted: '#b0bac8', accent: '#d8b4ff', accent2: '#cfe0ff' },
+          game: { bg: '#f3f1ef', bgDeep: '#d8d4cf', text: '#fbfdff', top: '#fbfaf8', mid: '#ebe7e1', bottom: '#d7d1ca', panelTop: '#3a404b', panelBottom: '#232831', neon: '#c6b0ff', accent: '#f0d8ff', accentGlow: '#d5c8ff' }
         },
         graphite: {
           label: 'Графит',
@@ -1015,14 +1022,6 @@
           g: first.g * inverse + second.g * ratio,
           b: first.b * inverse + second.b * ratio
         }, firstHex);
-      }
-
-      function transparencyToAlpha(value) {
-        return clamp(1 - (Number(value || 0) / 100), 0, 1);
-      }
-
-      function alphaToTransparency(alpha) {
-        return Math.round((1 - clamp(Number(alpha), 0, 1)) * 100);
       }
 
       function glowIntensityToAlpha(value) {
@@ -1329,7 +1328,6 @@
       }
 
       function syncThemeSliderValues() {
-        dom.bgTransparencyValue.textContent = `${dom.bgTransparency.value}%`;
         dom.neonIntensityValue.textContent = `${dom.neonIntensity.value}%`;
       }
 
@@ -1338,7 +1336,6 @@
         const preset = THEME_PRESETS[presetKey] || THEME_PRESETS[DEFAULT_THEME_PRESET];
         if (dom.themePreset) dom.themePreset.value = presetKey;
         dom.themeNeon.value = preset.game.neon;
-        dom.bgTransparency.value = String(alphaToTransparency(alphaFromColor(getThemeValue('scene', 'top', THEME_DEFAULTS.scene.top), 1)));
         dom.neonIntensity.value = String(alphaToGlowIntensity(alphaFromColor(getThemeValue('scene', 'glow1', THEME_DEFAULTS.scene.glow1), 0.16)));
         syncThemeSliderValues();
         applyEditorTheme();
@@ -1357,8 +1354,8 @@
         const sceneBottomColor = preset.game.bottom || THEME_DEFAULTS.scene.bottom;
         const panelTopColor = preset.game.panelTop || '#0b1a31';
         const panelBottomColor = preset.game.panelBottom || '#060d19';
-        const bgAlpha = transparencyToAlpha(dom.bgTransparency.value);
-        const panelAlpha = Math.max(bgAlpha - 0.08, 0.12);
+        const bgAlpha = 1;
+        const panelAlpha = 0.9;
         const neonAlpha = glowIntensityToAlpha(dom.neonIntensity.value);
         const accentPrimary = preset.game.accent || mixHexColors(THEME_DEFAULTS.colors.accent, neonColor, 0.42);
         const accentGlow = preset.game.accentGlow || mixHexColors(THEME_DEFAULTS.colors.accent2, neonColor, 0.68);
@@ -1387,7 +1384,7 @@
         draft.config.theme.scene.gridLine = rgbaFromHex(neonColor, Math.max(neonAlpha * bgAlpha * 0.08, 0.004));
 
         draft.config.theme.panels.top = rgbaFromHex(panelTopColor, panelAlpha);
-        draft.config.theme.panels.bottom = rgbaFromHex(panelBottomColor, Math.max(panelAlpha, 0.04));
+        draft.config.theme.panels.bottom = rgbaFromHex(panelBottomColor, Math.max(panelAlpha, 0.03));
         draft.config.theme.panels.glow = rgbaFromHex(neonColor, Math.max(neonAlpha * 1.05, 0.08));
         draft.config.theme.panels.border = rgbaFromHex(accentGlow, Math.max(neonAlpha * 0.72, 0.12));
         draft.config.theme.colors.border = rgbaFromHex(accentGlow, Math.max(neonAlpha * 0.58, 0.1));
@@ -1458,6 +1455,8 @@
         }
         const defaults = getEditorFieldDefaults(draft.locale);
         dom.locale.value = draft.locale;
+        if (dom.titleDisplay) dom.titleDisplay.value = defaults.title;
+        if (dom.finishLabelDisplay) dom.finishLabelDisplay.value = defaults.finishLabel;
         dom.steps.value = String((draft.config.gameplay && draft.config.gameplay.stepsToFinish) || 5);
         if (!((draft.config.gameplay && draft.config.gameplay.stepsToFinish) || '').toString().trim()) {
           dom.steps.value = '';
@@ -1750,7 +1749,6 @@
           previewTimer = 0;
         }
         const currentPreset = dom.themePreset && dom.themePreset.value ? dom.themePreset.value : DEFAULT_THEME_PRESET;
-        const currentTransparency = dom.bgTransparency ? dom.bgTransparency.value : null;
         const currentNeonIntensity = dom.neonIntensity ? dom.neonIntensity.value : null;
         collapsedQuestionIds.clear();
         previewQuestionIndex = 0;
@@ -1759,7 +1757,6 @@
         draft.config.content = draft.config.content || {};
         draft.config.content.editorThemePreset = currentPreset;
         syncFormFromDraft();
-        if (currentTransparency != null) dom.bgTransparency.value = currentTransparency;
         if (currentNeonIntensity != null) dom.neonIntensity.value = currentNeonIntensity;
         updateThemeFromInputs();
         reloadPreviewFrame();
@@ -1791,7 +1788,6 @@
 
       [
         dom.themePreset,
-        dom.bgTransparency,
         dom.neonIntensity
       ].filter(Boolean).forEach((element) => {
         const handleThemeChange = function () {
@@ -1988,16 +1984,18 @@
         rebuildLocaleDraft(dom.locale.value || defaultLocale);
       });
 
-      dom.export.addEventListener('click', function () {
-        try {
-          updateDraftFromBasics();
-          updateThemeFromInputs();
-          validateDraft();
-          exportDraft();
-        } catch (error) {
-          window.alert(error.message || 'Сначала исправь данные, потом экспортируй.');
-        }
-      });
+      if (dom.export) {
+        dom.export.addEventListener('click', function () {
+          try {
+            updateDraftFromBasics();
+            updateThemeFromInputs();
+            validateDraft();
+            exportDraft();
+          } catch (error) {
+            window.alert(error.message || 'Сначала исправь данные, потом экспортируй.');
+          }
+        });
+      }
 
       if (dom.generateEmbed) {
         dom.generateEmbed.addEventListener('click', async function () {
