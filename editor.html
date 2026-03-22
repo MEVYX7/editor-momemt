@@ -674,19 +674,11 @@
               <select class="editor-select" id="editor-locale"></select>
             </label>
             <label class="editor-field">
-              <span class="editor-label">Подпись финиша</span>
-              <input class="editor-input" id="editor-finish-label" type="text" />
-            </label>
-            <label class="editor-field">
-              <span class="editor-label">Название игры</span>
-              <input class="editor-input" id="editor-title" type="text" />
-            </label>
-            <label class="editor-field">
               <span class="editor-label">Шаги до финиша</span>
               <input class="editor-input" id="editor-steps" type="number" min="1" max="20" />
             </label>
           </div>
-          <div class="editor-note">Жизни в игре теперь фиксированы: `3`. Стартовый экран здесь не редактируется вручную и автоматически меняется вместе с выбранным языком.</div>
+          <div class="editor-note">Жизни в игре теперь фиксированы: `3`. Название игры и подпись финиша берутся из выбранного языка автоматически.</div>
         </section>
 
         <section class="editor-section editor-section--theme">
@@ -798,8 +790,6 @@
 
       const dom = {
         locale: document.getElementById('editor-locale'),
-        finishLabel: document.getElementById('editor-finish-label'),
-        title: document.getElementById('editor-title'),
         steps: document.getElementById('editor-steps'),
         questionsList: document.getElementById('editor-questions-list'),
         addQuestion: document.getElementById('editor-add-question'),
@@ -1267,7 +1257,7 @@
         return config;
       }
 
-      function getEditorFieldPlaceholders(localeCode) {
+      function getEditorFieldDefaults(localeCode) {
         const baseConfig = buildBaseConfig(localeCode);
         return {
           title: (baseConfig.content && baseConfig.content.title) || 'Момент истины',
@@ -1359,9 +1349,14 @@
         draft.config.content = draft.config.content || {};
         draft.config.content.editorThemePreset = (dom.themePreset && dom.themePreset.value) || DEFAULT_THEME_PRESET;
         const preset = THEME_PRESETS[getThemePreset()] || THEME_PRESETS[DEFAULT_THEME_PRESET];
-        const bgTintColor = THEME_DEFAULTS.colors.bg;
-        const bgDeepColor = THEME_DEFAULTS.colors.bgDeep;
+        const bgTintColor = preset.game.bg || THEME_DEFAULTS.colors.bg;
+        const bgDeepColor = preset.game.bgDeep || THEME_DEFAULTS.colors.bgDeep;
         const neonColor = preset.game.neon;
+        const sceneTopColor = preset.game.top || THEME_DEFAULTS.scene.top;
+        const sceneMidColor = preset.game.mid || THEME_DEFAULTS.scene.mid;
+        const sceneBottomColor = preset.game.bottom || THEME_DEFAULTS.scene.bottom;
+        const panelTopColor = preset.game.panelTop || '#0b1a31';
+        const panelBottomColor = preset.game.panelBottom || '#060d19';
         const bgAlpha = transparencyToAlpha(dom.bgTransparency.value);
         const panelAlpha = Math.max(bgAlpha - 0.08, 0.12);
         const neonAlpha = glowIntensityToAlpha(dom.neonIntensity.value);
@@ -1371,7 +1366,7 @@
 
         draft.config.theme.colors.bg = bgTintColor;
         draft.config.theme.colors.bgDeep = bgDeepColor;
-        draft.config.theme.colors.text = THEME_DEFAULTS.colors.text;
+        draft.config.theme.colors.text = preset.game.text || THEME_DEFAULTS.colors.text;
         draft.config.theme.colors.muted = THEME_DEFAULTS.colors.muted;
         draft.config.theme.colors.accent = accentPrimary;
         draft.config.theme.colors.accent2 = accentGlow;
@@ -1381,9 +1376,9 @@
         draft.config.theme.colors.danger = THEME_DEFAULTS.colors.danger;
         draft.config.theme.colors.warning = THEME_DEFAULTS.colors.warning;
 
-        draft.config.theme.scene.top = rgbaFromHex(THEME_DEFAULTS.scene.top, bgAlpha);
-        draft.config.theme.scene.mid = rgbaFromHex(THEME_DEFAULTS.scene.mid, bgAlpha);
-        draft.config.theme.scene.bottom = rgbaFromHex(THEME_DEFAULTS.scene.bottom, bgAlpha);
+        draft.config.theme.scene.top = rgbaFromHex(sceneTopColor, bgAlpha);
+        draft.config.theme.scene.mid = rgbaFromHex(sceneMidColor, bgAlpha);
+        draft.config.theme.scene.bottom = rgbaFromHex(sceneBottomColor, bgAlpha);
         draft.config.theme.scene.glow1 = rgbaFromHex(neonColor, Math.max(neonAlpha * 0.06, 0.004));
         draft.config.theme.scene.glow2 = rgbaFromHex(neonColor, Math.max(neonAlpha * 0.03, 0.002));
         draft.config.theme.scene.aurora1 = 'rgba(0,0,0,0)';
@@ -1391,8 +1386,8 @@
         draft.config.theme.scene.aurora3 = 'rgba(0,0,0,0)';
         draft.config.theme.scene.gridLine = rgbaFromHex(neonColor, Math.max(neonAlpha * bgAlpha * 0.08, 0.004));
 
-        draft.config.theme.panels.top = rgbaFromHex('#0b1a31', panelAlpha);
-        draft.config.theme.panels.bottom = rgbaFromHex('#060d19', Math.max(panelAlpha, 0.04));
+        draft.config.theme.panels.top = rgbaFromHex(panelTopColor, panelAlpha);
+        draft.config.theme.panels.bottom = rgbaFromHex(panelBottomColor, Math.max(panelAlpha, 0.04));
         draft.config.theme.panels.glow = rgbaFromHex(neonColor, Math.max(neonAlpha * 1.05, 0.08));
         draft.config.theme.panels.border = rgbaFromHex(accentGlow, Math.max(neonAlpha * 0.72, 0.12));
         draft.config.theme.colors.border = rgbaFromHex(accentGlow, Math.max(neonAlpha * 0.58, 0.1));
@@ -1406,8 +1401,6 @@
         config.content = config.content || {};
         config.progress = config.progress || {};
         config.gameplay = config.gameplay || {};
-        config.content.title = '';
-        config.progress.finishLabel = '';
         config.gameplay.stepsToFinish = '';
         config.gameplay.lives = 3;
         return {
@@ -1463,17 +1456,13 @@
         if (!draft.questions.some((question) => question.id === expandedQuestionId)) {
           expandedQuestionId = draft.questions[previewQuestionIndex] ? draft.questions[previewQuestionIndex].id : null;
         }
-        const placeholders = getEditorFieldPlaceholders(draft.locale);
+        const defaults = getEditorFieldDefaults(draft.locale);
         dom.locale.value = draft.locale;
-        dom.finishLabel.value = (draft.config.progress && draft.config.progress.finishLabel) || '';
-        dom.finishLabel.placeholder = placeholders.finishLabel;
-        dom.title.value = (draft.config.content && draft.config.content.title) || '';
-        dom.title.placeholder = placeholders.title;
         dom.steps.value = String((draft.config.gameplay && draft.config.gameplay.stepsToFinish) || 5);
         if (!((draft.config.gameplay && draft.config.gameplay.stepsToFinish) || '').toString().trim()) {
           dom.steps.value = '';
         }
-        dom.steps.placeholder = placeholders.steps;
+        dom.steps.placeholder = defaults.steps;
         syncThemeInputsFromDraft();
         renderQuestionsEditor();
         renderPreviewStatus();
@@ -1625,9 +1614,10 @@
       function updateDraftFromBasics() {
         draft.locale = dom.locale.value;
         draft.config.content.locale = draft.locale;
-        draft.config.content.title = dom.title.value.trim();
+        const localeDefaults = getEditorFieldDefaults(draft.locale);
+        draft.config.content.title = localeDefaults.title;
         draft.config.progress = draft.config.progress || {};
-        draft.config.progress.finishLabel = dom.finishLabel.value.trim();
+        draft.config.progress.finishLabel = localeDefaults.finishLabel;
         draft.config.gameplay = draft.config.gameplay || {};
         draft.config.gameplay.lives = 3;
         draft.config.gameplay.stepsToFinish = dom.steps.value.trim()
@@ -1662,16 +1652,6 @@
       }
 
       function validateDraft() {
-        const titleValue = String((draft.config && draft.config.content && draft.config.content.title) || '').trim();
-        if (!titleValue) {
-          throw new Error('Заполни название игры.');
-        }
-
-        const finishLabelValue = String((draft.config && draft.config.progress && draft.config.progress.finishLabel) || '').trim();
-        if (!finishLabelValue) {
-          throw new Error('Заполни подпись финиша.');
-        }
-
         const stepsValue = Number(draft.config && draft.config.gameplay && draft.config.gameplay.stepsToFinish);
         if (!Number.isFinite(stepsValue) || stepsValue < 1) {
           throw new Error('Укажи количество шагов до финиша.');
@@ -1802,7 +1782,7 @@
         rebuildLocaleDraft(dom.locale.value);
       });
 
-      [dom.finishLabel, dom.title, dom.steps].forEach((element) => {
+      [dom.steps].forEach((element) => {
         element.addEventListener('input', function () {
           updateDraftFromBasics();
           schedulePreview();
