@@ -42,17 +42,21 @@
       font: inherit;
     }
 
+    .editor-page {
+      display: grid;
+      gap: 18px;
+      min-height: 100vh;
+      padding: 18px;
+    }
+
     .editor-shell {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       grid-template-areas:
         "config config"
-        "preview questions"
-        "publish publish";
+        "preview questions";
       gap: 18px;
       align-items: start;
-      min-height: 100vh;
-      padding: 18px;
     }
 
     .editor-panel {
@@ -367,7 +371,6 @@
     }
 
     .editor-publish-panel {
-      grid-area: publish;
       align-self: start;
     }
 
@@ -622,8 +625,7 @@
         grid-template-areas:
           "config"
           "preview"
-          "questions"
-          "publish";
+          "questions";
       }
 
       .editor-body {
@@ -654,8 +656,9 @@
   </style>
 </head>
 <body>
-  <div class="editor-shell">
-    <aside class="editor-panel editor-sidebar">
+  <div class="editor-page">
+    <div class="editor-shell">
+      <aside class="editor-panel editor-sidebar">
       <div class="editor-head">
         <div class="editor-eyebrow">Редактор проекта</div>
         <h1 class="editor-title">Момент истины</h1>
@@ -729,41 +732,42 @@
         <button class="editor-btn" id="editor-export" type="button">Скачать JSON</button>
       </div>
 
-    </aside>
+      </aside>
 
-    <section class="editor-panel editor-preview">
-      <div class="editor-preview__head">
-        <div class="editor-preview__head-main">
-          <h2 class="editor-preview__title">Предпросмотр</h2>
-          <div class="editor-preview__meta">Слева показан экран игры с вопросами. Здесь удобно проверять сцену, цвета и интерфейс рядом с настройками вопросов.</div>
-        </div>
-        <div class="editor-preview__actions">
-          <div class="editor-preview__mode-switch" aria-label="Режим предпросмотра">
-            <button class="editor-btn editor-preview__mode-btn" id="editor-preview-mode-calm" type="button" data-preview-mode="calm">Спокойно</button>
-            <button class="editor-btn editor-preview__mode-btn" id="editor-preview-mode-live" type="button" data-preview-mode="live">Живо</button>
+      <section class="editor-panel editor-preview">
+        <div class="editor-preview__head">
+          <div class="editor-preview__head-main">
+            <h2 class="editor-preview__title">Предпросмотр</h2>
+            <div class="editor-preview__meta">Слева показан экран игры с вопросами. Здесь удобно проверять сцену, цвета и интерфейс рядом с настройками вопросов.</div>
           </div>
-          <span class="editor-preview__badge" id="editor-preview-current">В превью: вопрос 1 из 1</span>
+          <div class="editor-preview__actions">
+            <div class="editor-preview__mode-switch" aria-label="Режим предпросмотра">
+              <button class="editor-btn editor-preview__mode-btn" id="editor-preview-mode-calm" type="button" data-preview-mode="calm">Спокойно</button>
+              <button class="editor-btn editor-preview__mode-btn" id="editor-preview-mode-live" type="button" data-preview-mode="live">Живо</button>
+            </div>
+            <span class="editor-preview__badge" id="editor-preview-current">В превью: вопрос 1 из 1</span>
+          </div>
         </div>
-      </div>
-      <div class="editor-preview__frame-wrap" id="editor-preview-frame-wrap">
-        <div class="editor-preview__stage" id="editor-preview-stage">
-          <iframe class="editor-preview__frame" id="editor-preview-frame" src="./index.html?locale=ru" title="Предпросмотр игры"></iframe>
+        <div class="editor-preview__frame-wrap" id="editor-preview-frame-wrap">
+          <div class="editor-preview__stage" id="editor-preview-stage">
+            <iframe class="editor-preview__frame" id="editor-preview-frame" src="./index.html?locale=ru" title="Предпросмотр игры"></iframe>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="editor-panel editor-questions-panel">
-      <div class="editor-questions-panel__head">
-        <h2 class="editor-questions-panel__title">Вопросы</h2>
-        <div class="editor-questions-panel__meta">Сначала настраиваем основу проекта и тему, а ниже уже спокойно переходим к конкретным вопросам и сразу сравниваем их с превью слева.</div>
-      </div>
-      <div class="editor-questions-panel__body">
-        <div class="editor-questions" id="editor-questions-list"></div>
-        <div class="editor-inline-actions">
-          <button class="editor-btn editor-btn--accent" id="editor-add-question" type="button">Добавить вопрос</button>
+      <section class="editor-panel editor-questions-panel">
+        <div class="editor-questions-panel__head">
+          <h2 class="editor-questions-panel__title">Вопросы</h2>
+          <div class="editor-questions-panel__meta">Сначала настраиваем основу проекта и тему, а ниже уже спокойно переходим к конкретным вопросам и сразу сравниваем их с превью слева.</div>
         </div>
-      </div>
-    </section>
+        <div class="editor-questions-panel__body">
+          <div class="editor-questions" id="editor-questions-list"></div>
+          <div class="editor-inline-actions">
+            <button class="editor-btn editor-btn--accent" id="editor-add-question" type="button">Добавить вопрос</button>
+          </div>
+        </div>
+      </section>
+    </div>
 
     <section class="editor-panel editor-publish editor-publish-panel">
       <div class="editor-publish__head">
@@ -936,6 +940,8 @@
         }
       };
       const DEFAULT_THEME_PRESET = 'ocean';
+      const PUBLISH_ENDPOINT = 'https://publisher-server-sh27.onrender.com/publish';
+      const PUBLISH_KEY = 'secret4969';
       draft = buildDraft(defaultLocale);
 
       function deepClone(value) {
@@ -1142,11 +1148,11 @@
         updateThemeFromInputs();
         validateDraft();
         const publishId = generatePublishId();
-        const response = await fetch('https://publisher-server-sh27.onrender.com/publish', {
+        const response = await fetch(PUBLISH_ENDPOINT, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-Publish-Key': '[ secret4969]'
+            'X-Publish-Key': PUBLISH_KEY
           },
           body: JSON.stringify({
             id: publishId,
@@ -1156,6 +1162,9 @@
         });
         if (!response.ok) {
           const errorText = await response.text().catch(() => '');
+          if (errorText && errorText.includes('Bad publish key')) {
+            throw new Error('Сервер публикации отклонил ключ доступа. Проверь publish key.');
+          }
           throw new Error(errorText || `Ошибка публикации (${response.status})`);
         }
         let responseData = null;
