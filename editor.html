@@ -934,6 +934,9 @@
       const PUBLISH_ENDPOINT = 'https://publisher-server-sh27.onrender.com/publish';
       const PUBLISH_KEY = 'secret4969';
       const PUBLISHED_SITE_BASE = 'https://mevyx7.github.io/editor-momemt';
+      const LEGACY_PUBLISHED_DATA_BASE = 'https://mevyx7.github.io/texts';
+      const PUBLISH_READY_TIMEOUT_MS = 90000;
+      const PUBLISH_READY_POLL_MS = 3000;
       draft = buildDraft(defaultLocale);
 
       function deepClone(value) {
@@ -1135,6 +1138,39 @@
         return `<iframe src="${url}" title="Момент истины" loading="lazy" scrolling="no" allowfullscreen style="display:block;width:100%;max-width:1280px;aspect-ratio:1280 / 760;height:auto;border:0;overflow:hidden;"></iframe>`;
       }
 
+      function wait(ms) {
+        return new Promise((resolve) => window.setTimeout(resolve, ms));
+      }
+
+      async function isPublishedGameReady(id) {
+        const stamp = Date.now();
+        const candidates = [
+          `${PUBLISHED_SITE_BASE}/data/${encodeURIComponent(id)}.json?ts=${stamp}`,
+          `${LEGACY_PUBLISHED_DATA_BASE}/data/${encodeURIComponent(id)}.json?ts=${stamp}`
+        ];
+
+        for (const url of candidates) {
+          try {
+            const response = await fetch(url, { cache: 'no-store' });
+            if (response.ok) return true;
+          } catch (error) {}
+        }
+        return false;
+      }
+
+      async function waitForPublishedGame(id, options = {}) {
+        const timeoutMs = Number(options.timeoutMs || PUBLISH_READY_TIMEOUT_MS);
+        const pollMs = Number(options.pollMs || PUBLISH_READY_POLL_MS);
+        const startedAt = Date.now();
+
+        while (Date.now() - startedAt < timeoutMs) {
+          if (await isPublishedGameReady(id)) return true;
+          await wait(pollMs);
+        }
+
+        return false;
+      }
+
       async function publishProject() {
         updateDraftFromBasics();
         updateThemeFromInputs();
@@ -1166,6 +1202,10 @@
         const resolvedId = responseData && typeof responseData.id === 'string' && responseData.id.trim()
           ? responseData.id.trim()
           : publishId;
+        const ready = await waitForPublishedGame(resolvedId);
+        if (!ready) {
+          throw new Error('Публикация отправлена, но GitHub Pages еще не обновился. Подожди немного и попробуй снова.');
+        }
         const link = `${getPublishedGameUrl()}?id=${encodeURIComponent(resolvedId)}`;
         const iframeCode = buildIframeCode(link);
         if (dom.embedCode) dom.embedCode.value = iframeCode;
@@ -1940,7 +1980,12 @@
           const originalText = dom.generateEmbed.textContent;
           try {
             dom.generateEmbed.textContent = 'Публикуем...';
-            await publishProject();
+            const publishPromise = publishProject();
+            const waitingLabelTimer = window.setTimeout(() => {
+              dom.generateEmbed.textContent = 'Ждем обновление...';
+            }, 2200);
+            await publishPromise;
+            window.clearTimeout(waitingLabelTimer);
             dom.generateEmbed.textContent = 'Iframe готов';
             window.setTimeout(() => {
               dom.generateEmbed.textContent = originalText;
