@@ -697,6 +697,18 @@
               <select class="editor-select editor-theme-chip" id="editor-theme-preset"></select>
             </label>
             <label class="editor-field">
+              <span class="editor-label">Цвет игровых плашек</span>
+              <select class="editor-select editor-theme-chip" id="editor-panel-preset"></select>
+            </label>
+            <label class="editor-field">
+              <span class="editor-label">Цвет блока ответов</span>
+              <select class="editor-select editor-theme-chip" id="editor-answer-band-preset"></select>
+            </label>
+            <label class="editor-field">
+              <span class="editor-label">Цвет игровой области</span>
+              <select class="editor-select editor-theme-chip" id="editor-main-panel-preset"></select>
+            </label>
+            <label class="editor-field">
               <span class="editor-label">Неоновая подсветка</span>
               <input class="editor-input" id="editor-theme-neon" type="hidden" value="#49d8ff" />
             </label>
@@ -714,7 +726,7 @@
               <input class="editor-range" id="editor-neon-intensity" type="range" min="0" max="100" step="1" value="48" />
             </label>
           </div>
-          <div class="editor-note editor-note--compact">Фон теперь задается самой темой. Для более светлой сцены попробуй пресеты «Рассвет», «Небо» или «Жемчуг». Неон влияет в первую очередь на свечение сцены, а не перекрашивает весь интерфейс.</div>
+          <div class="editor-note editor-note--compact">Фон теперь задается самой темой, а отдельно можно выбрать цвет игровых плашек, контейнера ответов и всей игровой области под вопросом. Для более светлой сцены попробуй пресеты «Рассвет», «Небо» или «Жемчуг».</div>
         </section>
 
       </div>
@@ -805,6 +817,9 @@
         previewModeCalm: document.getElementById('editor-preview-mode-calm'),
         previewModeLive: document.getElementById('editor-preview-mode-live'),
         themePreset: document.getElementById('editor-theme-preset'),
+        panelPreset: document.getElementById('editor-panel-preset'),
+        answerBandPreset: document.getElementById('editor-answer-band-preset'),
+        mainPanelPreset: document.getElementById('editor-main-panel-preset'),
         themeNeon: document.getElementById('editor-theme-neon'),
         themeText: document.getElementById('editor-theme-text'),
         neonIntensity: document.getElementById('editor-neon-intensity'),
@@ -884,6 +899,29 @@
           top: 'rgba(10,19,34,0.90)',
           bottom: 'rgba(5,10,20,0.94)',
           glow: 'rgba(92,154,196,0.04)'
+        },
+        tiles: {
+          top: '#13233d',
+          bottom: '#08121f',
+          softTop: '#0d1a2d',
+          softBottom: '#07111d',
+          pillTop: '#152742',
+          pillBottom: '#0a1322',
+          border: 'rgba(104,153,196,0.16)',
+          glow: 'rgba(92,154,196,0.08)'
+        },
+        answerBand: {
+          top: '#0d1a2d',
+          bottom: '#07111d',
+          border: 'rgba(96,140,180,0.12)',
+          glow: 'rgba(92,154,196,0.06)'
+        },
+        mainPanel: {
+          top: '#08111f',
+          bottom: '#040a14',
+          border: 'rgba(96,140,180,0.14)',
+          glow: 'rgba(92,154,196,0.05)',
+          grid: 'rgba(73,216,255,0.024)'
         }
       };
       const THEME_PRESETS = {
@@ -929,6 +967,91 @@
         }
       };
       const DEFAULT_THEME_PRESET = 'ocean';
+      const PANEL_PRESETS = {
+        deep: {
+          label: 'Глубокие',
+          editor: { panel: 'rgba(10, 18, 32, 0.92)', panelSoft: 'rgba(15, 27, 47, 0.90)', border: 'rgba(101, 163, 214, 0.16)' },
+          game: {
+            panel: 'rgba(10, 19, 35, 0.74)',
+            panel2: 'rgba(14, 27, 49, 0.90)',
+            panelSolid: '#0f1b31',
+            top: '#0b1a31',
+            bottom: '#060d19',
+            introOverlayTop: 'rgba(2,6,16,0.62)',
+            introOverlayBottom: 'rgba(2,6,16,0.78)',
+            introCardTop: 'rgba(10,19,34,0.96)',
+            introCardBottom: 'rgba(6,11,21,0.98)',
+            introCardBorder: 'rgba(122,176,219,0.18)'
+          }
+        },
+        steel: {
+          label: 'Сталь',
+          editor: { panel: 'rgba(18, 28, 39, 0.92)', panelSoft: 'rgba(29, 42, 56, 0.90)', border: 'rgba(135, 171, 201, 0.18)' },
+          game: {
+            panel: 'rgba(34, 50, 68, 0.74)',
+            panel2: 'rgba(45, 63, 85, 0.90)',
+            panelSolid: '#31465c',
+            top: '#30465d',
+            bottom: '#1d2c3b',
+            introOverlayTop: 'rgba(7,11,19,0.54)',
+            introOverlayBottom: 'rgba(7,11,19,0.70)',
+            introCardTop: 'rgba(50,71,93,0.94)',
+            introCardBottom: 'rgba(29,43,58,0.98)',
+            introCardBorder: 'rgba(167,198,224,0.22)'
+          }
+        },
+        mist: {
+          label: 'Туман',
+          editor: { panel: 'rgba(28, 39, 52, 0.92)', panelSoft: 'rgba(44, 58, 74, 0.90)', border: 'rgba(178, 203, 226, 0.20)' },
+          game: {
+            panel: 'rgba(73, 92, 112, 0.72)',
+            panel2: 'rgba(102, 124, 147, 0.88)',
+            panelSolid: '#60768d',
+            top: '#71889f',
+            bottom: '#4b6177',
+            introOverlayTop: 'rgba(32,43,58,0.36)',
+            introOverlayBottom: 'rgba(32,43,58,0.52)',
+            introCardTop: 'rgba(118,138,158,0.94)',
+            introCardBottom: 'rgba(74,95,116,0.98)',
+            introCardBorder: 'rgba(214,230,246,0.26)'
+          }
+        },
+        sand: {
+          label: 'Песок',
+          editor: { panel: 'rgba(37, 28, 22, 0.92)', panelSoft: 'rgba(53, 41, 33, 0.90)', border: 'rgba(211, 174, 142, 0.20)' },
+          game: {
+            panel: 'rgba(92, 68, 54, 0.72)',
+            panel2: 'rgba(121, 89, 71, 0.88)',
+            panelSolid: '#7f604d',
+            top: '#896754',
+            bottom: '#5c4437',
+            introOverlayTop: 'rgba(31,19,13,0.40)',
+            introOverlayBottom: 'rgba(31,19,13,0.58)',
+            introCardTop: 'rgba(141,105,84,0.95)',
+            introCardBottom: 'rgba(94,72,58,0.98)',
+            introCardBorder: 'rgba(242,209,177,0.24)'
+          }
+        },
+        berry: {
+          label: 'Ягода',
+          editor: { panel: 'rgba(33, 21, 33, 0.92)', panelSoft: 'rgba(49, 29, 48, 0.90)', border: 'rgba(202, 154, 191, 0.18)' },
+          game: {
+            panel: 'rgba(86, 55, 83, 0.72)',
+            panel2: 'rgba(111, 71, 106, 0.88)',
+            panelSolid: '#6d4568',
+            top: '#774b71',
+            bottom: '#4a2d46',
+            introOverlayTop: 'rgba(25,12,23,0.42)',
+            introOverlayBottom: 'rgba(25,12,23,0.60)',
+            introCardTop: 'rgba(123,81,117,0.95)',
+            introCardBottom: 'rgba(78,49,75,0.98)',
+            introCardBorder: 'rgba(231,184,220,0.22)'
+          }
+        }
+      };
+      const DEFAULT_PANEL_PRESET = 'deep';
+      const DEFAULT_ANSWER_BAND_PRESET = 'deep';
+      const DEFAULT_MAIN_PANEL_PRESET = 'deep';
       const PUBLISH_ENDPOINT = 'https://publisher-server-sh27.onrender.com/publish';
       const PUBLISH_KEY = 'secret4969';
       const PUBLISHED_SITE_BASE = 'https://mevyx7.github.io/editor-momemt';
@@ -1253,6 +1376,9 @@
         config.content = config.content || {};
         config.content.locale = localeCode;
         config.content.editorThemePreset = config.content.editorThemePreset || DEFAULT_THEME_PRESET;
+        config.content.editorPanelPreset = config.content.editorPanelPreset || DEFAULT_PANEL_PRESET;
+        config.content.editorAnswerBandPreset = config.content.editorAnswerBandPreset || DEFAULT_ANSWER_BAND_PRESET;
+        config.content.editorMainPanelPreset = config.content.editorMainPanelPreset || DEFAULT_MAIN_PANEL_PRESET;
         return config;
       }
 
@@ -1271,10 +1397,46 @@
         return THEME_PRESETS[presetKey] ? presetKey : DEFAULT_THEME_PRESET;
       }
 
+      function getPanelPreset() {
+        const presetKey = draft && draft.config && draft.config.content && draft.config.content.editorPanelPreset;
+        return PANEL_PRESETS[presetKey] ? presetKey : DEFAULT_PANEL_PRESET;
+      }
+
+      function getAnswerBandPreset() {
+        const presetKey = draft && draft.config && draft.config.content && draft.config.content.editorAnswerBandPreset;
+        return PANEL_PRESETS[presetKey] ? presetKey : DEFAULT_ANSWER_BAND_PRESET;
+      }
+
+      function getMainPanelPreset() {
+        const presetKey = draft && draft.config && draft.config.content && draft.config.content.editorMainPanelPreset;
+        return PANEL_PRESETS[presetKey] ? presetKey : DEFAULT_MAIN_PANEL_PRESET;
+      }
+
       function populateThemePresetOptions() {
         if (!dom.themePreset) return;
         dom.themePreset.innerHTML = Object.entries(THEME_PRESETS)
           .filter(([value]) => value !== 'graphite')
+          .map(([value, preset]) => `<option value="${value}">${preset.label}</option>`)
+          .join('');
+      }
+
+      function populatePanelPresetOptions() {
+        if (!dom.panelPreset) return;
+        dom.panelPreset.innerHTML = Object.entries(PANEL_PRESETS)
+          .map(([value, preset]) => `<option value="${value}">${preset.label}</option>`)
+          .join('');
+      }
+
+      function populateAnswerBandPresetOptions() {
+        if (!dom.answerBandPreset) return;
+        dom.answerBandPreset.innerHTML = Object.entries(PANEL_PRESETS)
+          .map(([value, preset]) => `<option value="${value}">${preset.label}</option>`)
+          .join('');
+      }
+
+      function populateMainPanelPresetOptions() {
+        if (!dom.mainPanelPreset) return;
+        dom.mainPanelPreset.innerHTML = Object.entries(PANEL_PRESETS)
           .map(([value, preset]) => `<option value="${value}">${preset.label}</option>`)
           .join('');
       }
@@ -1316,6 +1478,9 @@
         draft.config.theme.colors = draft.config.theme.colors || {};
         draft.config.theme.scene = draft.config.theme.scene || {};
         draft.config.theme.panels = draft.config.theme.panels || {};
+        draft.config.theme.tiles = draft.config.theme.tiles || {};
+        draft.config.theme.answerBand = draft.config.theme.answerBand || {};
+        draft.config.theme.mainPanel = draft.config.theme.mainPanel || {};
       }
 
       function getThemeValue(section, key, fallback) {
@@ -1334,7 +1499,13 @@
       function syncThemeInputsFromDraft() {
         const presetKey = getThemePreset();
         const preset = THEME_PRESETS[presetKey] || THEME_PRESETS[DEFAULT_THEME_PRESET];
+        const panelPresetKey = getPanelPreset();
+        const answerBandPresetKey = getAnswerBandPreset();
+        const mainPanelPresetKey = getMainPanelPreset();
         if (dom.themePreset) dom.themePreset.value = presetKey;
+        if (dom.panelPreset) dom.panelPreset.value = panelPresetKey;
+        if (dom.answerBandPreset) dom.answerBandPreset.value = answerBandPresetKey;
+        if (dom.mainPanelPreset) dom.mainPanelPreset.value = mainPanelPresetKey;
         dom.themeNeon.value = preset.game.neon;
         dom.neonIntensity.value = String(alphaToGlowIntensity(alphaFromColor(getThemeValue('scene', 'glow1', THEME_DEFAULTS.scene.glow1), 0.16)));
         syncThemeSliderValues();
@@ -1345,24 +1516,49 @@
         ensureThemeDraft();
         draft.config.content = draft.config.content || {};
         draft.config.content.editorThemePreset = (dom.themePreset && dom.themePreset.value) || DEFAULT_THEME_PRESET;
+        draft.config.content.editorPanelPreset = (dom.panelPreset && dom.panelPreset.value) || DEFAULT_PANEL_PRESET;
+        draft.config.content.editorAnswerBandPreset = (dom.answerBandPreset && dom.answerBandPreset.value) || DEFAULT_ANSWER_BAND_PRESET;
+        draft.config.content.editorMainPanelPreset = (dom.mainPanelPreset && dom.mainPanelPreset.value) || DEFAULT_MAIN_PANEL_PRESET;
         const preset = THEME_PRESETS[getThemePreset()] || THEME_PRESETS[DEFAULT_THEME_PRESET];
+        const panelPreset = PANEL_PRESETS[getPanelPreset()] || PANEL_PRESETS[DEFAULT_PANEL_PRESET];
+        const answerBandPreset = PANEL_PRESETS[getAnswerBandPreset()] || PANEL_PRESETS[DEFAULT_ANSWER_BAND_PRESET];
+        const mainPanelPreset = PANEL_PRESETS[getMainPanelPreset()] || PANEL_PRESETS[DEFAULT_MAIN_PANEL_PRESET];
         const bgTintColor = preset.game.bg || THEME_DEFAULTS.colors.bg;
         const bgDeepColor = preset.game.bgDeep || THEME_DEFAULTS.colors.bgDeep;
         const neonColor = preset.game.neon;
         const sceneTopColor = preset.game.top || THEME_DEFAULTS.scene.top;
         const sceneMidColor = preset.game.mid || THEME_DEFAULTS.scene.mid;
         const sceneBottomColor = preset.game.bottom || THEME_DEFAULTS.scene.bottom;
-        const panelTopColor = preset.game.panelTop || '#0b1a31';
-        const panelBottomColor = preset.game.panelBottom || '#060d19';
+        const panelTopColor = normalizeHexColor(preset.game.panelTop || '#0b1a31', '#0b1a31');
+        const panelBottomColor = normalizeHexColor(preset.game.panelBottom || '#060d19', '#060d19');
         const bgAlpha = 1;
         const panelAlpha = 0.9;
         const neonAlpha = glowIntensityToAlpha(dom.neonIntensity.value);
         const accentPrimary = preset.game.accent || mixHexColors(THEME_DEFAULTS.colors.accent, neonColor, 0.42);
         const accentGlow = preset.game.accentGlow || mixHexColors(THEME_DEFAULTS.colors.accent2, neonColor, 0.68);
         const accentGold = THEME_DEFAULTS.colors.accent3;
+        const panelColor = rgbaFromHex(panelTopColor, 0.74);
+        const panel2Color = rgbaFromHex(mixHexColors(panelTopColor, panelBottomColor, 0.28), 0.90);
+        const panelSolidColor = panelTopColor;
+        const tileTopColor = normalizeHexColor(panelPreset.game.top || panelPreset.game.panelSolid || THEME_DEFAULTS.tiles.top, THEME_DEFAULTS.tiles.top);
+        const tileBottomColor = normalizeHexColor(panelPreset.game.bottom || panelPreset.game.panel || THEME_DEFAULTS.tiles.bottom, THEME_DEFAULTS.tiles.bottom);
+        const tileSoftTopColor = normalizeHexColor(panelPreset.game.panel2 || panelPreset.game.top || THEME_DEFAULTS.tiles.softTop, THEME_DEFAULTS.tiles.softTop);
+        const tileSoftBottomColor = normalizeHexColor(panelPreset.game.panel || panelPreset.game.bottom || THEME_DEFAULTS.tiles.softBottom, THEME_DEFAULTS.tiles.softBottom);
+        const tilePillTopColor = normalizeHexColor(panelPreset.game.panelSolid || panelPreset.game.top || THEME_DEFAULTS.tiles.pillTop, THEME_DEFAULTS.tiles.pillTop);
+        const tilePillBottomColor = normalizeHexColor(panelPreset.game.bottom || panelPreset.game.panel || THEME_DEFAULTS.tiles.pillBottom, THEME_DEFAULTS.tiles.pillBottom);
+        const tileBorderHex = mixHexColors(tileTopColor, accentGlow, 0.32);
+        const answerBandTopColor = normalizeHexColor(answerBandPreset.game.panel2 || answerBandPreset.game.top || THEME_DEFAULTS.answerBand.top, THEME_DEFAULTS.answerBand.top);
+        const answerBandBottomColor = normalizeHexColor(answerBandPreset.game.panel || answerBandPreset.game.bottom || THEME_DEFAULTS.answerBand.bottom, THEME_DEFAULTS.answerBand.bottom);
+        const answerBandBorderHex = mixHexColors(answerBandTopColor, accentGlow, 0.24);
+        const mainPanelTopColor = normalizeHexColor(mainPanelPreset.game.panelSolid || mainPanelPreset.game.top || THEME_DEFAULTS.mainPanel.top, THEME_DEFAULTS.mainPanel.top);
+        const mainPanelBottomColor = normalizeHexColor(mainPanelPreset.game.bottom || mainPanelPreset.game.panel || THEME_DEFAULTS.mainPanel.bottom, THEME_DEFAULTS.mainPanel.bottom);
+        const mainPanelBorderHex = mixHexColors(mainPanelTopColor, accentGlow, 0.22);
 
         draft.config.theme.colors.bg = bgTintColor;
         draft.config.theme.colors.bgDeep = bgDeepColor;
+        draft.config.theme.colors.panel = panelColor;
+        draft.config.theme.colors.panel2 = panel2Color;
+        draft.config.theme.colors.panelSolid = panelSolidColor;
         draft.config.theme.colors.text = preset.game.text || THEME_DEFAULTS.colors.text;
         draft.config.theme.colors.muted = THEME_DEFAULTS.colors.muted;
         draft.config.theme.colors.accent = accentPrimary;
@@ -1387,6 +1583,28 @@
         draft.config.theme.panels.bottom = rgbaFromHex(panelBottomColor, Math.max(panelAlpha, 0.03));
         draft.config.theme.panels.glow = rgbaFromHex(neonColor, Math.max(neonAlpha * 1.05, 0.08));
         draft.config.theme.panels.border = rgbaFromHex(accentGlow, Math.max(neonAlpha * 0.72, 0.12));
+        draft.config.theme.panels.introOverlayTop = rgbaFromHex(bgDeepColor, 0.62);
+        draft.config.theme.panels.introOverlayBottom = rgbaFromHex(bgDeepColor, 0.78);
+        draft.config.theme.panels.introCardTop = rgbaFromHex(panelTopColor, 0.96);
+        draft.config.theme.panels.introCardBottom = rgbaFromHex(panelBottomColor, 0.98);
+        draft.config.theme.panels.introCardBorder = rgbaFromHex(accentGlow, Math.max(neonAlpha * 0.34, 0.14));
+        draft.config.theme.tiles.top = tileTopColor;
+        draft.config.theme.tiles.bottom = tileBottomColor;
+        draft.config.theme.tiles.softTop = tileSoftTopColor;
+        draft.config.theme.tiles.softBottom = tileSoftBottomColor;
+        draft.config.theme.tiles.pillTop = tilePillTopColor;
+        draft.config.theme.tiles.pillBottom = tilePillBottomColor;
+        draft.config.theme.tiles.border = rgbaFromHex(tileBorderHex, Math.max(neonAlpha * 0.34, 0.12));
+        draft.config.theme.tiles.glow = rgbaFromHex(accentGlow, Math.max(neonAlpha * 0.84, 0.08));
+        draft.config.theme.answerBand.top = answerBandTopColor;
+        draft.config.theme.answerBand.bottom = answerBandBottomColor;
+        draft.config.theme.answerBand.border = rgbaFromHex(answerBandBorderHex, Math.max(neonAlpha * 0.26, 0.10));
+        draft.config.theme.answerBand.glow = rgbaFromHex(accentGlow, Math.max(neonAlpha * 0.56, 0.06));
+        draft.config.theme.mainPanel.top = rgbaFromHex(mainPanelTopColor, 0.92);
+        draft.config.theme.mainPanel.bottom = rgbaFromHex(mainPanelBottomColor, 0.98);
+        draft.config.theme.mainPanel.border = rgbaFromHex(mainPanelBorderHex, Math.max(neonAlpha * 0.30, 0.10));
+        draft.config.theme.mainPanel.glow = rgbaFromHex(accentGlow, Math.max(neonAlpha * 0.40, 0.05));
+        draft.config.theme.mainPanel.grid = rgbaFromHex(accentGlow, Math.max(neonAlpha * 0.12, 0.02));
         draft.config.theme.colors.border = rgbaFromHex(accentGlow, Math.max(neonAlpha * 0.58, 0.1));
         draft.config.theme.colors.grid = rgbaFromHex(accentGlow, Math.max(neonAlpha * 0.16, 0.01));
         syncThemeSliderValues();
@@ -1749,6 +1967,9 @@
           previewTimer = 0;
         }
         const currentPreset = dom.themePreset && dom.themePreset.value ? dom.themePreset.value : DEFAULT_THEME_PRESET;
+        const currentPanelPreset = dom.panelPreset && dom.panelPreset.value ? dom.panelPreset.value : DEFAULT_PANEL_PRESET;
+        const currentAnswerBandPreset = dom.answerBandPreset && dom.answerBandPreset.value ? dom.answerBandPreset.value : DEFAULT_ANSWER_BAND_PRESET;
+        const currentMainPanelPreset = dom.mainPanelPreset && dom.mainPanelPreset.value ? dom.mainPanelPreset.value : DEFAULT_MAIN_PANEL_PRESET;
         const currentNeonIntensity = dom.neonIntensity ? dom.neonIntensity.value : null;
         collapsedQuestionIds.clear();
         previewQuestionIndex = 0;
@@ -1756,6 +1977,9 @@
         draft = buildDraft(localeCode);
         draft.config.content = draft.config.content || {};
         draft.config.content.editorThemePreset = currentPreset;
+        draft.config.content.editorPanelPreset = currentPanelPreset;
+        draft.config.content.editorAnswerBandPreset = currentAnswerBandPreset;
+        draft.config.content.editorMainPanelPreset = currentMainPanelPreset;
         syncFormFromDraft();
         if (currentNeonIntensity != null) dom.neonIntensity.value = currentNeonIntensity;
         updateThemeFromInputs();
@@ -1770,6 +1994,9 @@
 
       populateLocaleOptions();
       populateThemePresetOptions();
+      populatePanelPresetOptions();
+      populateAnswerBandPresetOptions();
+      populateMainPanelPresetOptions();
       syncFormFromDraft();
       updateThemeFromInputs();
       syncPreviewScale();
@@ -1788,6 +2015,9 @@
 
       [
         dom.themePreset,
+        dom.panelPreset,
+        dom.answerBandPreset,
+        dom.mainPanelPreset,
         dom.neonIntensity
       ].filter(Boolean).forEach((element) => {
         const handleThemeChange = function () {
