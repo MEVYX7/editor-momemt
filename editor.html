@@ -1625,12 +1625,14 @@
       function updateDraftFromBasics() {
         draft.locale = dom.locale.value;
         draft.config.content.locale = draft.locale;
-        draft.config.content.title = dom.title.value.trim() || 'Момент истины';
+        draft.config.content.title = dom.title.value.trim();
         draft.config.progress = draft.config.progress || {};
-        draft.config.progress.finishLabel = dom.finishLabel.value.trim() || 'Финиш';
+        draft.config.progress.finishLabel = dom.finishLabel.value.trim();
         draft.config.gameplay = draft.config.gameplay || {};
         draft.config.gameplay.lives = 3;
-        draft.config.gameplay.stepsToFinish = Math.max(1, Number(dom.steps.value || 5));
+        draft.config.gameplay.stepsToFinish = dom.steps.value.trim()
+          ? Math.max(1, Number(dom.steps.value))
+          : '';
       }
 
       function reorderQuestions(fromIndex, toIndex) {
@@ -1660,6 +1662,21 @@
       }
 
       function validateDraft() {
+        const titleValue = String((draft.config && draft.config.content && draft.config.content.title) || '').trim();
+        if (!titleValue) {
+          throw new Error('Заполни название игры.');
+        }
+
+        const finishLabelValue = String((draft.config && draft.config.progress && draft.config.progress.finishLabel) || '').trim();
+        if (!finishLabelValue) {
+          throw new Error('Заполни подпись финиша.');
+        }
+
+        const stepsValue = Number(draft.config && draft.config.gameplay && draft.config.gameplay.stepsToFinish);
+        if (!Number.isFinite(stepsValue) || stepsValue < 1) {
+          throw new Error('Укажи количество шагов до финиша.');
+        }
+
         if (!Array.isArray(draft.questions) || draft.questions.length === 0) {
           throw new Error('Добавь хотя бы один вопрос.');
         }
