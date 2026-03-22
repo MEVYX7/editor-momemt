@@ -84,6 +84,8 @@
   --mot-btn-min-height: 48px;
   --mot-feedback-height: 58px;
   --mot-timer-pill-height: 42px;
+  --mot-intro-scale: 1;
+  --mot-final-scale: 1;
 
   --mot-anim-fast: 160ms;
   --mot-anim-mid: 280ms;
@@ -1397,7 +1399,7 @@
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-      overflow: auto;
+      overflow: hidden;
       transition:
         opacity var(--mot-anim-mid) ease,
         visibility 0s linear var(--mot-anim-mid);
@@ -1413,10 +1415,10 @@
     .mot-intro__card {
       position: relative;
       width: min(100%, 860px);
-      max-height: calc(100vh - 48px);
+      max-height: none;
       padding: 34px 34px 30px;
       border-radius: 28px;
-      overflow: auto;
+      overflow: hidden;
       text-align: center;
       background:
         linear-gradient(180deg, var(--mot-intro-card-top), var(--mot-intro-card-bottom)),
@@ -1428,16 +1430,15 @@
         inset 0 1px 0 rgba(255,255,255,0.04),
         inset 0 -1px 0 rgba(73,216,255,0.03);
       opacity: 0;
-      transform: translateY(28px) scale(0.985);
+      transform: translateY(28px) scale(calc(0.985 * var(--mot-intro-scale)));
+      transform-origin: center center;
       transition:
         opacity var(--mot-anim-mid) ease,
         transform var(--mot-anim-slow) cubic-bezier(0.22, 1, 0.36, 1);
-      scrollbar-width: thin;
-      scrollbar-color: rgba(73,216,255,0.32) rgba(7,14,25,0.55);
     }
     .mot-intro--visible .mot-intro__card {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: translateY(0) scale(var(--mot-intro-scale));
     }
     .mot-intro__card::before {
       content: "";
@@ -1687,7 +1688,8 @@
       position: relative;
       overflow: hidden;
       opacity: 0;
-      transform: translateY(28px) scale(0.982);
+      transform: translateY(28px) scale(calc(0.982 * var(--mot-final-scale)));
+      transform-origin: center center;
       transition:
         opacity var(--mot-anim-mid) ease,
         transform var(--mot-anim-slow) cubic-bezier(0.22, 1, 0.36, 1),
@@ -1696,7 +1698,7 @@
     }
     .mot-final--visible .mot-final__card {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: translateY(0) scale(var(--mot-final-scale));
     }
     .mot-final__card::before {
       content: "";
@@ -1929,6 +1931,48 @@
       .mot-intro__stats { grid-template-columns: 1fr; }
       .mot-intro__modes { grid-template-columns: 1fr; }
       .mot-final__stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    .mot-root--embed .mot-intro {
+      padding: 14px;
+    }
+    .mot-root--embed .mot-intro__card {
+      width: min(100%, 820px);
+      padding: 26px 24px 22px;
+    }
+    .mot-root--embed .mot-intro__subtitle {
+      margin-bottom: 18px;
+      font-size: 15px;
+    }
+    .mot-root--embed .mot-intro__stats {
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .mot-root--embed .mot-intro__stat {
+      padding: 14px 14px;
+    }
+    .mot-root--embed .mot-intro__hint {
+      padding: 13px 14px;
+      font-size: 14px;
+    }
+    .mot-root--embed .mot-intro__modes {
+      gap: 8px;
+      padding: 0 14px 14px;
+    }
+    .mot-root--embed .mot-intro__mode {
+      padding: 10px 10px 9px;
+    }
+    .mot-root--embed .mot-intro__mode-text {
+      font-size: 13px;
+    }
+    .mot-root--embed .mot-intro__actions {
+      gap: 12px;
+      padding: 14px 16px;
+    }
+    .mot-root--embed .mot-final {
+      padding: 16px;
+    }
+    .mot-root--embed .mot-final__card {
+      padding: 24px 22px;
     }
     @media (max-height: 920px) {
       :root {
@@ -2169,6 +2213,7 @@
       const CONTENT_SOURCE = window.MomentOfTruthContent || {};
       const LOCALES = CONTENT_SOURCE.locales || {};
       const FALLBACK_LOCALE = CONTENT_SOURCE.defaultLocale || 'ru';
+      const PUBLISHED_SITE_BASE = 'https://mevyx7.github.io/editor-momemt';
       const publishedGameId = new URLSearchParams(window.location.search).get('id');
 
       function getLocalePack(localeCode) {
@@ -2696,6 +2741,13 @@
         let audio = createAudioManager(config);
         let scoreAnimFrame = 0;
         let previewCycleTimer = null;
+        const embeddedMode = (function () {
+          try {
+            return window.self !== window.top;
+          } catch (error) {
+            return true;
+          }
+        })();
 
         const state = {
           status: 'idle',
@@ -2746,6 +2798,29 @@
 
         const dom = {};
         function emit(eventName, detail) { if (rootEl) rootEl.dispatchEvent(new CustomEvent(eventName, { detail })); }
+
+        function syncOverlayScale() {
+          if (!rootEl) return;
+          rootEl.style.setProperty('--mot-intro-scale', '1');
+          rootEl.style.setProperty('--mot-final-scale', '1');
+
+          const viewportHeight = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0, 320);
+          const availableHeight = Math.max(viewportHeight - (embeddedMode ? 20 : 48), 320);
+
+          function fit(card, cssVarName) {
+            if (!card) return;
+            const naturalHeight = Math.max(card.scrollHeight, card.offsetHeight, 1);
+            const nextScale = clamp(availableHeight / naturalHeight, 0.72, 1);
+            rootEl.style.setProperty(cssVarName, String(nextScale));
+          }
+
+          if (dom.start && dom.start.classList.contains('mot-intro--visible')) {
+            fit(dom.startCard, '--mot-intro-scale');
+          }
+          if (dom.final && dom.final.classList.contains('mot-final--visible')) {
+            fit(dom.finalCard, '--mot-final-scale');
+          }
+        }
 
         function applyThemeConfig() {
           if (!rootEl) return;
@@ -3010,6 +3085,7 @@
           renderBanner();
           renderStartScreen();
           renderFinalScreen();
+          syncOverlayScale();
         }
 
         function renderProgressTrack() {
@@ -3426,6 +3502,7 @@ function renderIndicator() {
           mountEl.innerHTML = '';
           const wrapper = document.createElement('div');
           wrapper.className = 'mot-root';
+          if (embeddedMode) wrapper.classList.add('mot-root--embed');
           wrapper.innerHTML = `
             <div class="mot-shell">
               <section class="mot-panel mot-hud" aria-label="${hudText.ariaLabel || 'Game HUD'}">
@@ -3601,6 +3678,7 @@ function renderIndicator() {
           dom.indicator = rootEl.querySelector('[data-mot="indicator"]');
           dom.answerBand = rootEl.querySelector('[data-mot="answerBand"]');
           dom.start = rootEl.querySelector('[data-mot="startScreen"]');
+          dom.startCard = rootEl.querySelector('.mot-intro__card');
           dom.startButton = rootEl.querySelector('[data-mot="startButton"]');
           dom.startLives = rootEl.querySelector('[data-mot="startLives"]');
           dom.startGoal = rootEl.querySelector('[data-mot="startGoal"]');
@@ -3641,12 +3719,17 @@ function renderIndicator() {
           dom.confettiLayer = rootEl.querySelector('[data-mot="confettiLayer"]');
           attachEvents();
           if (typeof ResizeObserver !== 'undefined') {
-            resizeObserver = new ResizeObserver(() => renderIndicator());
+            resizeObserver = new ResizeObserver(() => {
+              renderIndicator();
+              syncOverlayScale();
+            });
             resizeObserver.observe(rootEl);
             resizeObserver.observe(dom.rail);
           } else {
+            window.addEventListener('resize', syncOverlayScale);
             window.addEventListener('resize', renderIndicator);
           }
+          syncOverlayScale();
         }
 
         function resetState() {
@@ -3794,7 +3877,10 @@ function renderIndicator() {
             destroyTimers();
             audio.shutdown();
             if (resizeObserver) { resizeObserver.disconnect(); resizeObserver = null; }
-            else window.removeEventListener('resize', renderIndicator);
+            else {
+              window.removeEventListener('resize', renderIndicator);
+              window.removeEventListener('resize', syncOverlayScale);
+            }
             if (rootEl && rootEl.parentNode) rootEl.parentNode.removeChild(rootEl);
             rootEl = null;
           },
@@ -3844,7 +3930,7 @@ function renderIndicator() {
 
       async function fetchPublishedPayload(id) {
         if (!id) return null;
-        const response = await fetch(`https://mevyx7.github.io/texts/data/${id}.json`, { cache: 'no-store' });
+        const response = await fetch(`${PUBLISHED_SITE_BASE}/data/${id}.json`, { cache: 'no-store' });
         if (!response.ok) {
           throw new Error(`Failed to load published game (${response.status})`);
         }
