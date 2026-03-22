@@ -32,6 +32,7 @@
         linear-gradient(180deg, var(--editor-bg), color-mix(in srgb, var(--editor-bg) 38%, #02050b));
       color: var(--editor-text);
       font-family: var(--editor-font);
+      overflow: auto;
     }
 
     button,
@@ -43,8 +44,12 @@
 
     .editor-shell {
       display: grid;
-      grid-template-columns: minmax(360px, 520px) minmax(0, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-areas:
+        "config config"
+        "preview questions";
       gap: 18px;
+      align-items: start;
       min-height: 100vh;
       padding: 18px;
     }
@@ -60,8 +65,9 @@
     }
 
     .editor-sidebar {
+      grid-area: config;
       display: grid;
-      grid-template-rows: auto 1fr auto;
+      grid-template-rows: auto auto auto;
       min-height: 0;
     }
 
@@ -95,12 +101,15 @@
     }
 
     .editor-body {
-      overflow: auto;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+      overflow: visible;
       padding: 18px 24px 24px;
     }
 
     .editor-section + .editor-section {
-      margin-top: 22px;
+      margin-top: 0;
     }
 
     .editor-section__title {
@@ -214,6 +223,44 @@
       gap: 14px;
     }
 
+    .editor-question-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .editor-question-tab {
+      min-width: 132px;
+      justify-content: center;
+      cursor: grab;
+    }
+
+    .editor-question-tab--active {
+      color: #05111d;
+      background: linear-gradient(180deg, rgba(79, 208, 255, 0.96), rgba(34, 126, 173, 0.98));
+      border-color: rgba(162, 230, 255, 0.38);
+    }
+
+    .editor-question-tab--dragging {
+      opacity: 0.48;
+      cursor: grabbing;
+    }
+
+    .editor-question-tab--drop-target {
+      border-color: rgba(88, 240, 178, 0.48);
+      box-shadow: 0 0 0 1px rgba(88, 240, 178, 0.18), 0 0 18px rgba(88, 240, 178, 0.10);
+    }
+
+    .editor-questions-empty {
+      padding: 16px 18px;
+      border-radius: 16px;
+      border: 1px dashed rgba(101, 163, 214, 0.18);
+      color: var(--editor-muted);
+      background: rgba(8, 16, 28, 0.62);
+      line-height: 1.5;
+    }
+
     .editor-question {
       padding: 16px;
       border-radius: 18px;
@@ -225,6 +272,11 @@
     .editor-question--fresh {
       border-color: rgba(88, 240, 178, 0.36);
       box-shadow: 0 0 0 1px rgba(88, 240, 178, 0.14), 0 0 26px rgba(88, 240, 178, 0.12);
+    }
+
+    .editor-question--preview {
+      border-color: rgba(79, 208, 255, 0.34);
+      box-shadow: 0 0 0 1px rgba(79, 208, 255, 0.14), 0 0 24px rgba(79, 208, 255, 0.10);
     }
 
     .editor-question--collapsed .editor-question__head {
@@ -307,6 +359,67 @@
       border-top: 1px solid rgba(101, 163, 214, 0.10);
     }
 
+    .editor-publish {
+      display: grid;
+      gap: 14px;
+      padding: 0 24px 24px;
+      border-top: 1px solid rgba(101, 163, 214, 0.10);
+    }
+
+    .editor-publish__head {
+      display: grid;
+      gap: 6px;
+      padding-top: 18px;
+    }
+
+    .editor-publish__title {
+      margin: 0;
+      font-family: var(--editor-tech);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--editor-text) 88%, #9ec9e2);
+    }
+
+    .editor-publish__meta {
+      color: var(--editor-muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .editor-publish__box {
+      display: grid;
+      gap: 8px;
+      padding: 14px;
+      border-radius: 16px;
+      background:
+        linear-gradient(180deg, rgba(14, 25, 42, 0.92), rgba(8, 16, 28, 0.96));
+      border: 1px solid rgba(101, 163, 214, 0.10);
+    }
+
+    .editor-publish__label {
+      color: var(--editor-muted);
+      font-size: 12px;
+      font-family: var(--editor-tech);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .editor-publish__code {
+      min-height: 84px;
+      resize: vertical;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .editor-publish__actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
     .editor-btn {
       appearance: none;
       border: 1px solid rgba(101, 163, 214, 0.18);
@@ -320,6 +433,11 @@
       text-transform: uppercase;
       padding: 12px 18px;
       cursor: pointer;
+    }
+
+    .editor-btn:disabled {
+      opacity: 0.46;
+      cursor: not-allowed;
     }
 
     .editor-btn--primary {
@@ -341,9 +459,44 @@
     }
 
     .editor-preview {
+      grid-area: preview;
       display: grid;
       grid-template-rows: auto 1fr;
       min-height: 0;
+      align-self: start;
+    }
+
+    .editor-questions-panel {
+      grid-area: questions;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: 0;
+      align-self: start;
+    }
+
+    .editor-questions-panel__head {
+      display: grid;
+      gap: 6px;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid rgba(101, 163, 214, 0.10);
+    }
+
+    .editor-questions-panel__title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .editor-questions-panel__meta {
+      color: var(--editor-muted);
+      font-size: 12px;
+      line-height: 1.45;
+      max-width: 46ch;
+    }
+
+    .editor-questions-panel__body {
+      padding: 18px;
     }
 
     .editor-preview__head {
@@ -374,10 +527,59 @@
       max-width: 42ch;
     }
 
+    .editor-preview__actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .editor-preview__mode-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(8, 18, 31, 0.92);
+      border: 1px solid rgba(101, 163, 214, 0.14);
+    }
+
+    .editor-preview__mode-btn {
+      min-height: 34px;
+      padding: 8px 14px;
+      font-size: 11px;
+      background: transparent;
+      border-color: transparent;
+    }
+
+    .editor-preview__mode-btn--active {
+      color: #05111d;
+      background: linear-gradient(180deg, rgba(79, 208, 255, 0.96), rgba(34, 126, 173, 0.98));
+      border-color: rgba(162, 230, 255, 0.38);
+    }
+
+    .editor-preview__badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(8, 18, 31, 0.92);
+      border: 1px solid rgba(101, 163, 214, 0.14);
+      color: var(--editor-text);
+      font-family: var(--editor-tech);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
     .editor-preview__frame-wrap {
       padding: 12px;
       min-height: 0;
-      height: calc(100vh - 132px);
+      height: clamp(420px, 58vh, 760px);
       display: flex;
       justify-content: center;
       align-items: flex-start;
@@ -406,12 +608,25 @@
     }
 
     @media (max-width: 1280px) {
+      html, body {
+        height: auto;
+        overflow: auto;
+      }
+
       .editor-shell {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "config"
+          "preview"
+          "questions";
+      }
+
+      .editor-body {
         grid-template-columns: 1fr;
       }
 
       .editor-preview__frame-wrap {
-        height: min(78vh, 980px);
+        height: min(78vh, 760px);
       }
     }
 
@@ -439,11 +654,11 @@
       <div class="editor-head">
         <div class="editor-eyebrow">Редактор проекта</div>
         <h1 class="editor-title">Момент истины</h1>
-        <p class="editor-subtitle">Здесь мы настраиваем игру без кода: язык, базовые тексты, параметры раунда и сами вопросы. Справа всегда видно живой предпросмотр.</p>
+        <p class="editor-subtitle">Здесь мы настраиваем игру без кода: язык, базовые тексты, параметры раунда и сами вопросы. Сначала задаем основу проекта, а ниже переходим к вопросам и предпросмотру.</p>
       </div>
 
       <div class="editor-body">
-        <section class="editor-section">
+        <section class="editor-section editor-section--project">
           <h2 class="editor-section__title">Основа проекта</h2>
           <div class="editor-grid">
             <label class="editor-field">
@@ -466,7 +681,7 @@
           <div class="editor-note">Жизни в игре теперь фиксированы: `3`. Стартовый экран здесь не редактируется вручную и автоматически меняется вместе с выбранным языком.</div>
         </section>
 
-        <section class="editor-section">
+        <section class="editor-section editor-section--theme">
           <h2 class="editor-section__title">Тема и атмосфера</h2>
           <div class="editor-grid">
             <label class="editor-field">
@@ -501,14 +716,6 @@
           <div class="editor-note editor-note--compact">Неон теперь влияет в первую очередь на свечение сцены, а не перекрашивает весь интерфейс. Так внешний вид остается аккуратным даже при ярких цветах.</div>
         </section>
 
-        <section class="editor-section">
-          <h2 class="editor-section__title">Вопросы</h2>
-          <div class="editor-questions" id="editor-questions-list"></div>
-          <div class="editor-inline-actions">
-            <button class="editor-btn editor-btn--accent" id="editor-add-question" type="button">Добавить вопрос</button>
-          </div>
-        </section>
-
       </div>
 
       <div class="editor-actions">
@@ -516,19 +723,62 @@
         <button class="editor-btn" id="editor-reset" type="button">Сбросить</button>
         <button class="editor-btn" id="editor-export" type="button">Скачать JSON</button>
       </div>
+
+      <section class="editor-publish">
+        <div class="editor-publish__head">
+          <h2 class="editor-publish__title">Публикация</h2>
+          <div class="editor-publish__meta">Публикует проект на сервер Render и собирает готовый `iframe` для Genially. После публикации GitHub Pages может обновиться не мгновенно.</div>
+        </div>
+        <div class="editor-publish__actions">
+          <button class="editor-btn editor-btn--primary" id="editor-generate-embed" type="button">Сохранить и получить iframe</button>
+          <button class="editor-btn" id="editor-copy-link" type="button">Скопировать ссылку</button>
+          <button class="editor-btn" id="editor-copy-iframe" type="button">Скопировать iframe</button>
+        </div>
+        <div class="editor-publish__box">
+          <label class="editor-field">
+            <span class="editor-publish__label">Ссылка</span>
+            <textarea class="editor-textarea editor-publish__code" id="editor-embed-link" readonly placeholder="Здесь появится ссылка для вставки"></textarea>
+          </label>
+        </div>
+        <div class="editor-publish__box">
+          <label class="editor-field">
+            <span class="editor-publish__label">Iframe-код</span>
+            <textarea class="editor-textarea editor-publish__code" id="editor-embed-code" readonly placeholder="Здесь появится iframe-код для Genially"></textarea>
+          </label>
+        </div>
+      </section>
     </aside>
 
     <section class="editor-panel editor-preview">
       <div class="editor-preview__head">
         <div class="editor-preview__head-main">
           <h2 class="editor-preview__title">Предпросмотр</h2>
-          <div class="editor-preview__meta">Справа всегда показывается основной экран игры с вопросами. Так удобнее настраивать именно игровую сцену, цвета и интерфейс.</div>
+          <div class="editor-preview__meta">Слева показан экран игры с вопросами. Здесь удобно проверять сцену, цвета и интерфейс рядом с настройками вопросов.</div>
         </div>
-        <button class="editor-btn" id="editor-preview-reload" type="button">Перезагрузить</button>
+        <div class="editor-preview__actions">
+          <div class="editor-preview__mode-switch" aria-label="Режим предпросмотра">
+            <button class="editor-btn editor-preview__mode-btn" id="editor-preview-mode-calm" type="button" data-preview-mode="calm">Спокойно</button>
+            <button class="editor-btn editor-preview__mode-btn" id="editor-preview-mode-live" type="button" data-preview-mode="live">Живо</button>
+          </div>
+          <span class="editor-preview__badge" id="editor-preview-current">В превью: вопрос 1 из 1</span>
+        </div>
       </div>
       <div class="editor-preview__frame-wrap" id="editor-preview-frame-wrap">
         <div class="editor-preview__stage" id="editor-preview-stage">
           <iframe class="editor-preview__frame" id="editor-preview-frame" src="./index.html?locale=ru" title="Предпросмотр игры"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <section class="editor-panel editor-questions-panel">
+      <div class="editor-questions-panel__head">
+        <h2 class="editor-questions-panel__title">Вопросы</h2>
+        <div class="editor-questions-panel__meta">Сначала настраиваем основу проекта и тему, а ниже уже спокойно переходим к конкретным вопросам и сразу сравниваем их с превью слева.</div>
+      </div>
+      <div class="editor-questions-panel__body">
+        <div class="editor-questions" id="editor-questions-list"></div>
+        <div class="editor-inline-actions">
+          <button class="editor-btn editor-btn--accent" id="editor-add-question" type="button">Добавить вопрос</button>
         </div>
       </div>
     </section>
@@ -553,7 +803,14 @@
         apply: document.getElementById('editor-apply'),
         reset: document.getElementById('editor-reset'),
         export: document.getElementById('editor-export'),
-        previewReload: document.getElementById('editor-preview-reload'),
+        generateEmbed: document.getElementById('editor-generate-embed'),
+        copyLink: document.getElementById('editor-copy-link'),
+        copyIframe: document.getElementById('editor-copy-iframe'),
+        embedLink: document.getElementById('editor-embed-link'),
+        embedCode: document.getElementById('editor-embed-code'),
+        previewCurrent: document.getElementById('editor-preview-current'),
+        previewModeCalm: document.getElementById('editor-preview-mode-calm'),
+        previewModeLive: document.getElementById('editor-preview-mode-live'),
         themePreset: document.getElementById('editor-theme-preset'),
         themeNeon: document.getElementById('editor-theme-neon'),
         themeText: document.getElementById('editor-theme-text'),
@@ -586,12 +843,8 @@
         });
         if (dom.apply) dom.apply.remove();
         if (dom.export) dom.export.textContent = 'Скачать проект';
-        if (dom.previewReload) {
-          dom.previewReload.textContent = 'Обновить превью';
-          dom.previewReload.classList.add('editor-btn--primary');
-        }
         const previewMeta = document.querySelector('.editor-preview__meta');
-        if (previewMeta) previewMeta.textContent = 'Справа виден экран игры с вопросами. Здесь удобно проверять вид сцены и интерфейса.';
+        if (previewMeta) previewMeta.textContent = 'Слева виден экран игры с вопросами. Здесь удобно проверять вид сцены и интерфейса рядом с редактором вопросов.';
         const themePresetField = dom.themePreset ? dom.themePreset.closest('.editor-field') : null;
         if (themePresetField) {
           const presetLabel = themePresetField.querySelector('.editor-label');
@@ -610,8 +863,13 @@
 
       let draft;
       let previewTimer = 0;
+      let previewFrameLoaded = false;
+      let previewMode = 'live';
+      let draggedQuestionId = null;
       let questionIdCounter = 1;
       let freshQuestionIndex = -1;
+      let previewQuestionIndex = 0;
+      let expandedQuestionId = null;
       const collapsedQuestionIds = new Set();
       const previewBaseSize = { width: 1280, height: 760 };
       const THEME_DEFAULTS = {
@@ -800,9 +1058,13 @@
       }
 
       function buildPreviewPayload() {
+        const previewConfig = deepClone(draft.config);
+        previewConfig.audio = previewConfig.audio || {};
+        previewConfig.audio.enabled = false;
         return {
           locale: draft.locale,
-          config: deepClone(draft.config),
+          previewMode: previewMode,
+          config: previewConfig,
           questions: buildPreviewQuestions()
         };
       }
@@ -835,6 +1097,102 @@
         if (configDiff && Object.keys(configDiff).length) payload.config = configDiff;
         if (questionsDiff) payload.questions = questionsDiff;
         return payload;
+      }
+
+      function buildPublishData() {
+        return {
+          locale: draft.locale,
+          config: deepClone(draft.config),
+          questions: deepClone(draft.questions)
+        };
+      }
+
+      function generatePublishId() {
+        const rawTitle = String((draft.config && draft.config.content && draft.config.content.title) || 'game').toLowerCase();
+        const safeTitle = rawTitle.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 28) || 'game';
+        const now = new Date();
+        const stamp = [
+          now.getFullYear(),
+          String(now.getMonth() + 1).padStart(2, '0'),
+          String(now.getDate()).padStart(2, '0'),
+          '-',
+          String(now.getHours()).padStart(2, '0'),
+          String(now.getMinutes()).padStart(2, '0'),
+          String(now.getSeconds()).padStart(2, '0')
+        ].join('');
+        return `${safeTitle}-${stamp}`;
+      }
+
+      function getPublishedGameUrl() {
+        return 'https://mevyx7.github.io/texts/main.html';
+      }
+
+      function buildIframeCode(url) {
+        return `<iframe src="${url}" width="1280" height="760" style="width:100%;max-width:1280px;height:760px;border:0;" allowfullscreen></iframe>`;
+      }
+
+      async function publishProject() {
+        updateDraftFromBasics();
+        updateThemeFromInputs();
+        validateDraft();
+        const publishId = generatePublishId();
+        const response = await fetch('https://publisher-server-sh27.onrender.com/publish', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Publish-Key': '[ secret4969]'
+          },
+          body: JSON.stringify({
+            id: publishId,
+            folder: 'data',
+            data: buildPublishData()
+          })
+        });
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => '');
+          throw new Error(errorText || `Ошибка публикации (${response.status})`);
+        }
+        let responseData = null;
+        try {
+          responseData = await response.json();
+        } catch (error) {}
+        const resolvedId = responseData && typeof responseData.id === 'string' && responseData.id.trim()
+          ? responseData.id.trim()
+          : publishId;
+        const link = `${getPublishedGameUrl()}?id=${encodeURIComponent(resolvedId)}`;
+        const iframeCode = buildIframeCode(link);
+        if (dom.embedLink) dom.embedLink.value = link;
+        if (dom.embedCode) dom.embedCode.value = iframeCode;
+        return { id: resolvedId, link, iframeCode };
+      }
+
+      async function copyTextWithFeedback(text, button, successText) {
+        if (!text) return;
+        const originalText = button ? button.textContent : '';
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            const helper = document.createElement('textarea');
+            helper.value = text;
+            helper.setAttribute('readonly', 'readonly');
+            helper.style.position = 'absolute';
+            helper.style.left = '-9999px';
+            document.body.appendChild(helper);
+            helper.select();
+            document.execCommand('copy');
+            document.body.removeChild(helper);
+          }
+          if (button) {
+            button.textContent = successText;
+            window.setTimeout(() => {
+              button.textContent = originalText;
+            }, 1400);
+          }
+        } catch (error) {
+          if (button) button.textContent = originalText;
+          window.alert('Не удалось скопировать автоматически. Можно взять значение из поля ниже.');
+        }
       }
 
       function getLocalePack(localeCode) {
@@ -891,12 +1249,14 @@
       function buildPreviewQuestions() {
         const placeholders = getPreviewPlaceholders(draft.locale);
         const sourceQuestions = Array.isArray(draft.questions) && draft.questions.length ? draft.questions : [createEmptyQuestion()];
-        return sourceQuestions.map((question, index) => {
+        const safePreviewIndex = clamp(previewQuestionIndex, 0, sourceQuestions.length - 1);
+        const previewQuestion = sourceQuestions[safePreviewIndex] || sourceQuestions[0];
+        return [previewQuestion].map((question) => {
           const answers = Array.isArray(question.answers) ? question.answers.slice(0, 5).map((answer) => String(answer || '').trim()) : [];
           while (answers.length < 3) answers.push('');
           const normalizedAnswers = answers.map((answer, answerIndex) => answer || `${placeholders.answer} ${answerIndex + 1}`);
           return {
-            id: question.id || `preview_question_${index + 1}`,
+            id: question.id || `preview_question_${safePreviewIndex + 1}`,
             question: String(question.question || '').trim() || placeholders.question,
             answers: normalizedAnswers,
             correct_index: clamp(Number(question.correct_index || 0), 0, normalizedAnswers.length - 1),
@@ -1034,17 +1394,62 @@
 
       function syncFormFromDraft() {
         ensureQuestionIds();
+        previewQuestionIndex = clamp(previewQuestionIndex, 0, Math.max(draft.questions.length - 1, 0));
+        if (!draft.questions.some((question) => question.id === expandedQuestionId)) {
+          expandedQuestionId = draft.questions[previewQuestionIndex] ? draft.questions[previewQuestionIndex].id : null;
+        }
         dom.locale.value = draft.locale;
         dom.finishLabel.value = (draft.config.progress && draft.config.progress.finishLabel) || '';
         dom.title.value = (draft.config.content && draft.config.content.title) || '';
         dom.steps.value = String((draft.config.gameplay && draft.config.gameplay.stepsToFinish) || 5);
         syncThemeInputsFromDraft();
         renderQuestionsEditor();
+        renderPreviewStatus();
+      }
+
+      function renderPreviewStatus() {
+        const totalQuestions = Math.max(draft.questions.length, 1);
+        const safePreviewIndex = clamp(previewQuestionIndex, 0, totalQuestions - 1);
+        if (dom.previewCurrent) dom.previewCurrent.textContent = `В превью: вопрос ${safePreviewIndex + 1} из ${totalQuestions}`;
+        if (dom.previewModeCalm) {
+          dom.previewModeCalm.classList.toggle('editor-preview__mode-btn--active', previewMode === 'calm');
+          dom.previewModeCalm.setAttribute('aria-pressed', previewMode === 'calm' ? 'true' : 'false');
+        }
+        if (dom.previewModeLive) {
+          dom.previewModeLive.classList.toggle('editor-preview__mode-btn--active', previewMode === 'live');
+          dom.previewModeLive.setAttribute('aria-pressed', previewMode === 'live' ? 'true' : 'false');
+        }
       }
 
       function renderQuestionsEditor() {
         const modeOptions = getModeOptions();
-        dom.questionsList.innerHTML = draft.questions.map((question, index) => {
+        const safePreviewIndex = clamp(previewQuestionIndex, 0, Math.max(draft.questions.length - 1, 0));
+        if (!draft.questions.length) {
+          dom.questionsList.innerHTML = '<div class="editor-questions-empty">Добавь вопрос, чтобы начать редактирование.</div>';
+          renderPreviewStatus();
+          return;
+        }
+
+        const tabsMarkup = `
+          <div class="editor-question-tabs">
+            ${draft.questions.map((question, index) => `
+              <button
+                class="editor-btn editor-question-tab ${question.id === expandedQuestionId ? 'editor-question-tab--active' : ''}"
+                type="button"
+                draggable="true"
+                data-role="question-tab"
+                data-action="toggle-question"
+                data-index="${index}"
+                data-question-id="${question.id}"
+              >
+                Вопрос ${index + 1}
+              </button>
+            `).join('')}
+          </div>
+        `;
+
+        const questionCardsMarkup = draft.questions.map((question, index) => {
+          if (question.id !== expandedQuestionId) return '';
           const isCollapsed = collapsedQuestionIds.has(question.id);
           const correctOptions = question.answers.map((answer, answerIndex) => {
             const label = answer && answer.trim() ? answer : `Ответ ${answerIndex + 1}`;
@@ -1067,11 +1472,11 @@
           `).join('');
 
           return `
-            <article class="editor-question ${index === freshQuestionIndex ? 'editor-question--fresh' : ''} ${isCollapsed ? 'editor-question--collapsed' : ''}" data-question-index="${index}">
+            <article class="editor-question ${index === freshQuestionIndex ? 'editor-question--fresh' : ''} ${index === safePreviewIndex ? 'editor-question--preview' : ''} ${isCollapsed ? 'editor-question--collapsed' : ''}" data-question-index="${index}">
               <div class="editor-question__head">
                 <h3 class="editor-question__title">Вопрос ${index + 1}</h3>
                 <div class="editor-question__actions">
-                  <button class="editor-btn" type="button" data-action="duplicate-question" data-index="${index}">Дублировать</button>
+                  <button class="editor-btn" type="button" data-action="toggle-question" data-index="${index}">${isCollapsed ? 'Показать вопрос' : 'Скрыть вопрос'}</button>
                   <button class="editor-btn editor-btn--danger" type="button" data-action="remove-question" data-index="${index}">Удалить</button>
                 </div>
               </div>
@@ -1119,15 +1524,10 @@
           `;
         }).join('');
 
-        dom.questionsList.querySelectorAll('[data-action="duplicate-question"]').forEach((button) => {
-          button.textContent = 'Копия вопроса';
-        });
-
-        dom.questionsList.querySelectorAll('[data-action="duplicate-question"]').forEach((button) => {
-          const questionIndex = Number(button.dataset.index);
-          const question = draft.questions[questionIndex];
-          button.textContent = question && collapsedQuestionIds.has(question.id) ? 'Показать вопрос' : 'Скрыть вопрос';
-        });
+        dom.questionsList.innerHTML = tabsMarkup + (
+          questionCardsMarkup ||
+          '<div class="editor-questions-empty">Выбери вопрос кнопкой выше, чтобы открыть его для редактирования.</div>'
+        );
 
         if (freshQuestionIndex >= 0) {
           const freshCard = dom.questionsList.querySelector(`[data-question-index="${freshQuestionIndex}"]`);
@@ -1147,6 +1547,7 @@
             if (currentFresh) currentFresh.classList.remove('editor-question--fresh');
           }, 1800);
         }
+        renderPreviewStatus();
       }
 
       function updateDraftFromBasics() {
@@ -1158,6 +1559,32 @@
         draft.config.gameplay = draft.config.gameplay || {};
         draft.config.gameplay.lives = 3;
         draft.config.gameplay.stepsToFinish = Math.max(1, Number(dom.steps.value || 5));
+      }
+
+      function reorderQuestions(fromIndex, toIndex) {
+        if (fromIndex === toIndex) return;
+        const previewQuestion = draft.questions[clamp(previewQuestionIndex, 0, draft.questions.length - 1)] || null;
+        const previewQuestionId = previewQuestion ? previewQuestion.id : null;
+        const expandedId = expandedQuestionId;
+        const movedQuestion = draft.questions.splice(fromIndex, 1)[0];
+        if (!movedQuestion) return;
+        draft.questions.splice(toIndex, 0, movedQuestion);
+        if (previewQuestionId) {
+          const nextPreviewIndex = draft.questions.findIndex((question) => question.id === previewQuestionId);
+          previewQuestionIndex = nextPreviewIndex >= 0 ? nextPreviewIndex : 0;
+        } else {
+          previewQuestionIndex = 0;
+        }
+        expandedQuestionId = expandedId && draft.questions.some((question) => question.id === expandedId)
+          ? expandedId
+          : (draft.questions[previewQuestionIndex] && draft.questions[previewQuestionIndex].id) || null;
+      }
+
+      function clearDragState() {
+        draggedQuestionId = null;
+        dom.questionsList.querySelectorAll('.editor-question-tab--dragging, .editor-question-tab--drop-target').forEach((element) => {
+          element.classList.remove('editor-question-tab--dragging', 'editor-question-tab--drop-target');
+        });
       }
 
       function validateDraft() {
@@ -1195,38 +1622,29 @@
         dom.frame.style.transform = '';
       }
 
-      function applyPreview(attempt = 0) {
-        const frameWindow = dom.frame.contentWindow;
-        if (!frameWindow) return;
-        if (!frameWindow.MomentOfTruth) {
-          if (attempt < 20) {
-            window.setTimeout(function () {
-              applyPreview(attempt + 1);
-            }, 120);
-          }
-          return;
+      function postPreviewUpdate() {
+        const frameWindow = dom.frame && dom.frame.contentWindow;
+        if (!frameWindow || !previewFrameLoaded) return false;
+        frameWindow.postMessage({
+          type: 'moment-of-truth-preview-update',
+          payload: buildPreviewPayload()
+        }, '*');
+        return true;
+      }
+
+      function applyPreview(options = {}) {
+        if (options.forceReload || !postPreviewUpdate()) {
+          reloadPreviewFrame();
         }
-        frameWindow.MomentOfTruth.init(draft.config, buildPreviewQuestions(), '#moment-of-truth-root');
-        if (typeof frameWindow.MomentOfTruth.start === 'function') {
-          frameWindow.MomentOfTruth.start();
-        } else if (typeof frameWindow.MomentOfTruth.preview === 'function') {
-          frameWindow.MomentOfTruth.preview('game');
-        }
-        syncPreviewScale();
       }
 
       function applyThemePreview() {
-        const frameWindow = dom.frame.contentWindow;
-        if (!frameWindow || !frameWindow.MomentOfTruth || typeof frameWindow.MomentOfTruth.setTheme !== 'function') {
-          schedulePreview();
-          return;
-        }
         updateThemeFromInputs();
-        frameWindow.MomentOfTruth.setTheme(draft.config.theme || {});
-        syncPreviewScale();
+        schedulePreview();
       }
 
       function reloadPreviewFrame() {
+        previewFrameLoaded = false;
         const previewPayload = encodeBase64UrlUnicode(buildPreviewPayload());
         dom.frame.src = `./index.html?locale=${encodeURIComponent(draft.locale)}&preview=${Date.now()}#mot=${previewPayload}`;
       }
@@ -1239,7 +1657,7 @@
           } catch (error) {
             console.error(error);
           }
-        }, 220);
+        }, 320);
       }
 
       function exportDraft() {
@@ -1266,6 +1684,7 @@
         const currentTransparency = dom.bgTransparency ? dom.bgTransparency.value : null;
         const currentNeonIntensity = dom.neonIntensity ? dom.neonIntensity.value : null;
         collapsedQuestionIds.clear();
+        previewQuestionIndex = 0;
         draft = buildDraft(localeCode);
         draft.config.content = draft.config.content || {};
         draft.config.content.editorThemePreset = currentPreset;
@@ -1277,11 +1696,9 @@
       }
 
       dom.frame.addEventListener('load', function () {
-        try {
-          applyPreview();
-        } catch (error) {
-          console.error(error);
-        }
+        previewFrameLoaded = true;
+        postPreviewUpdate();
+        syncPreviewScale();
       });
 
       populateLocaleOptions();
@@ -1322,14 +1739,17 @@
 
         if (target.dataset.role === 'question-text') {
           draft.questions[index].question = target.value;
+          previewQuestionIndex = index;
         }
 
         if (target.dataset.role === 'question-speed') {
           draft.questions[index].speed = Math.max(100, Number(target.value || 320));
+          previewQuestionIndex = index;
         }
 
         if (target.dataset.role === 'answer-text') {
           draft.questions[index].answers[answerIndex] = target.value;
+          previewQuestionIndex = index;
         }
 
         schedulePreview();
@@ -1342,17 +1762,63 @@
 
         if (target.dataset.role === 'question-mode') {
           draft.questions[index].mode = target.value;
+          previewQuestionIndex = index;
         }
 
         if (target.dataset.role === 'question-correct') {
           draft.questions[index].correct_index = Number(target.value || 0);
+          previewQuestionIndex = index;
         }
 
         if (target.dataset.role === 'answer-text') {
+          previewQuestionIndex = index;
           renderQuestionsEditor();
         }
 
         schedulePreview();
+      });
+
+      dom.questionsList.addEventListener('dragstart', function (event) {
+        const tab = event.target.closest('[data-role="question-tab"]');
+        if (!tab) return;
+        const index = Number(tab.dataset.index);
+        const question = draft.questions[index];
+        if (!question) return;
+        draggedQuestionId = question.id;
+        tab.classList.add('editor-question-tab--dragging');
+        if (event.dataTransfer) {
+          event.dataTransfer.effectAllowed = 'move';
+          event.dataTransfer.setData('text/plain', question.id);
+        }
+      });
+
+      dom.questionsList.addEventListener('dragover', function (event) {
+        const tab = event.target.closest('[data-role="question-tab"]');
+        if (!tab || !draggedQuestionId) return;
+        event.preventDefault();
+        dom.questionsList.querySelectorAll('.editor-question-tab--drop-target').forEach((element) => {
+          if (element !== tab) element.classList.remove('editor-question-tab--drop-target');
+        });
+        if (tab.dataset.questionId !== draggedQuestionId) {
+          tab.classList.add('editor-question-tab--drop-target');
+        }
+      });
+
+      dom.questionsList.addEventListener('drop', function (event) {
+        const tab = event.target.closest('[data-role="question-tab"]');
+        if (!tab || !draggedQuestionId) return;
+        event.preventDefault();
+        const fromIndex = draft.questions.findIndex((question) => question.id === draggedQuestionId);
+        const toIndex = Number(tab.dataset.index);
+        clearDragState();
+        if (fromIndex < 0 || Number.isNaN(toIndex) || fromIndex === toIndex) return;
+        reorderQuestions(fromIndex, toIndex);
+        renderQuestionsEditor();
+        schedulePreview();
+      });
+
+      dom.questionsList.addEventListener('dragend', function () {
+        clearDragState();
       });
 
       dom.questionsList.addEventListener('click', function (event) {
@@ -1364,24 +1830,38 @@
 
         if (action === 'remove-question') {
           if (draft.questions[index]) collapsedQuestionIds.delete(draft.questions[index].id);
+          if (draft.questions[index] && draft.questions[index].id === expandedQuestionId) expandedQuestionId = null;
           draft.questions.splice(index, 1);
-          if (draft.questions.length === 0) draft.questions.push(createEmptyQuestion());
+          if (draft.questions.length === 0) {
+            draft.questions.push(createEmptyQuestion());
+            previewQuestionIndex = 0;
+            expandedQuestionId = draft.questions[0].id;
+          } else {
+            previewQuestionIndex = clamp(previewQuestionIndex, 0, draft.questions.length - 1);
+            expandedQuestionId = draft.questions[previewQuestionIndex].id;
+          }
           renderQuestionsEditor();
           schedulePreview();
           return;
         }
 
-        if (action === 'duplicate-question') {
+        if (action === 'toggle-question') {
           const question = draft.questions[index];
           if (!question) return;
-          if (collapsedQuestionIds.has(question.id)) collapsedQuestionIds.delete(question.id);
-          else collapsedQuestionIds.add(question.id);
+          if (expandedQuestionId === question.id) {
+            expandedQuestionId = null;
+          } else {
+            expandedQuestionId = question.id;
+            previewQuestionIndex = clamp(index, 0, draft.questions.length - 1);
+          }
           freshQuestionIndex = -1;
           renderQuestionsEditor();
+          if (expandedQuestionId) schedulePreview();
           return;
         }
 
         if (action === 'add-answer') {
+          previewQuestionIndex = index;
           if (draft.questions[index].answers.length < 5) {
             draft.questions[index].answers.push('');
             renderQuestionsEditor();
@@ -1391,6 +1871,7 @@
         }
 
         if (action === 'remove-answer') {
+          previewQuestionIndex = index;
           if (draft.questions[index].answers.length > 3) {
             draft.questions[index].answers.splice(answerIndex, 1);
             draft.questions[index].correct_index = Math.min(
@@ -1405,8 +1886,22 @@
 
       dom.addQuestion.addEventListener('click', function () {
         draft.questions.push(createEmptyQuestion());
+        previewQuestionIndex = draft.questions.length - 1;
+        expandedQuestionId = draft.questions[previewQuestionIndex].id;
+        freshQuestionIndex = previewQuestionIndex;
         renderQuestionsEditor();
         schedulePreview();
+      });
+
+      [dom.previewModeCalm, dom.previewModeLive].forEach((button) => {
+        if (!button) return;
+        button.addEventListener('click', function () {
+          const nextMode = button.dataset.previewMode === 'calm' ? 'calm' : 'live';
+          if (previewMode === nextMode) return;
+          previewMode = nextMode;
+          renderPreviewStatus();
+          schedulePreview();
+        });
       });
 
       dom.apply.addEventListener('click', function () {
@@ -1434,15 +1929,46 @@
         }
       });
 
-      dom.previewReload.addEventListener('click', function () {
-        try {
-          updateDraftFromBasics();
-          updateThemeFromInputs();
-          reloadPreviewFrame();
-        } catch (error) {
-          window.alert(error.message || 'Не удалось перезагрузить предпросмотр.');
-        }
-      });
+      if (dom.generateEmbed) {
+        dom.generateEmbed.addEventListener('click', async function () {
+          const originalText = dom.generateEmbed.textContent;
+          try {
+            dom.generateEmbed.textContent = 'Публикуем...';
+            await publishProject();
+            dom.generateEmbed.textContent = 'Iframe готов';
+            window.setTimeout(() => {
+              dom.generateEmbed.textContent = originalText;
+            }, 1600);
+          } catch (error) {
+            dom.generateEmbed.textContent = originalText;
+            window.alert(error.message || 'Не удалось опубликовать проект.');
+          }
+        });
+      }
+
+      if (dom.copyLink) {
+        dom.copyLink.addEventListener('click', async function () {
+          try {
+            const link = dom.embedLink && dom.embedLink.value ? dom.embedLink.value : '';
+            if (!link) throw new Error('Сначала опубликуй проект, чтобы получить ссылку.');
+            await copyTextWithFeedback(link, dom.copyLink, 'Ссылка скопирована');
+          } catch (error) {
+            window.alert(error.message || 'Не удалось скопировать ссылку.');
+          }
+        });
+      }
+
+      if (dom.copyIframe) {
+        dom.copyIframe.addEventListener('click', async function () {
+          try {
+            const iframeCode = dom.embedCode && dom.embedCode.value ? dom.embedCode.value : '';
+            if (!iframeCode) throw new Error('Сначала опубликуй проект, чтобы получить iframe-код.');
+            await copyTextWithFeedback(iframeCode, dom.copyIframe, 'Iframe скопирован');
+          } catch (error) {
+            window.alert(error.message || 'Не удалось скопировать iframe-код.');
+          }
+        });
+      }
 
       window.addEventListener('resize', syncPreviewScale);
     })();
