@@ -843,6 +843,7 @@
           }
         });
         if (dom.apply) dom.apply.remove();
+        if (dom.reset) dom.reset.textContent = 'Очистить';
         if (dom.export) dom.export.textContent = 'Скачать проект';
         const previewMeta = document.querySelector('.editor-preview__meta');
         if (previewMeta) previewMeta.textContent = 'Слева виден экран игры с вопросами. Здесь удобно проверять вид сцены и интерфейса рядом с редактором вопросов.';
@@ -1266,6 +1267,15 @@
         return config;
       }
 
+      function getEditorFieldPlaceholders(localeCode) {
+        const baseConfig = buildBaseConfig(localeCode);
+        return {
+          title: (baseConfig.content && baseConfig.content.title) || 'Момент истины',
+          finishLabel: (baseConfig.progress && baseConfig.progress.finishLabel) || 'Финиш',
+          steps: String((baseConfig.gameplay && baseConfig.gameplay.stepsToFinish) || 5)
+        };
+      }
+
       function getThemePreset() {
         const presetKey = draft && draft.config && draft.config.content && draft.config.content.editorThemePreset;
         if (presetKey === 'graphite') return DEFAULT_THEME_PRESET;
@@ -1392,10 +1402,18 @@
       }
 
       function buildDraft(localeCode) {
+        const config = buildBaseConfig(localeCode);
+        config.content = config.content || {};
+        config.progress = config.progress || {};
+        config.gameplay = config.gameplay || {};
+        config.content.title = '';
+        config.progress.finishLabel = '';
+        config.gameplay.stepsToFinish = '';
+        config.gameplay.lives = 3;
         return {
           locale: localeCode,
-          config: buildBaseConfig(localeCode),
-          questions: deepClone(getLocalePack(localeCode).questions || [])
+          config,
+          questions: [createEmptyQuestion(config)]
         };
       }
 
@@ -1410,13 +1428,14 @@
         });
       }
 
-      function createEmptyQuestion() {
+      function createEmptyQuestion(configSource) {
+        const sourceConfig = configSource || (draft && draft.config) || {};
         return {
           id: 'question_' + questionIdCounter++,
           question: '',
           answers: ['', '', ''],
           correct_index: 0,
-          speed: Number((draft.config.movement && draft.config.movement.defaultSpeed) || 320),
+          speed: Number((sourceConfig.movement && sourceConfig.movement.defaultSpeed) || 320),
           mode: 'normal'
         };
       }
@@ -1444,10 +1463,17 @@
         if (!draft.questions.some((question) => question.id === expandedQuestionId)) {
           expandedQuestionId = draft.questions[previewQuestionIndex] ? draft.questions[previewQuestionIndex].id : null;
         }
+        const placeholders = getEditorFieldPlaceholders(draft.locale);
         dom.locale.value = draft.locale;
         dom.finishLabel.value = (draft.config.progress && draft.config.progress.finishLabel) || '';
+        dom.finishLabel.placeholder = placeholders.finishLabel;
         dom.title.value = (draft.config.content && draft.config.content.title) || '';
+        dom.title.placeholder = placeholders.title;
         dom.steps.value = String((draft.config.gameplay && draft.config.gameplay.stepsToFinish) || 5);
+        if (!((draft.config.gameplay && draft.config.gameplay.stepsToFinish) || '').toString().trim()) {
+          dom.steps.value = '';
+        }
+        dom.steps.placeholder = placeholders.steps;
         syncThemeInputsFromDraft();
         renderQuestionsEditor();
         renderPreviewStatus();
@@ -1731,6 +1757,7 @@
         const currentNeonIntensity = dom.neonIntensity ? dom.neonIntensity.value : null;
         collapsedQuestionIds.clear();
         previewQuestionIndex = 0;
+        questionIdCounter = 1;
         draft = buildDraft(localeCode);
         draft.config.content = draft.config.content || {};
         draft.config.content.editorThemePreset = currentPreset;
