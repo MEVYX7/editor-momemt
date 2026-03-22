@@ -776,14 +776,7 @@
       </div>
       <div class="editor-publish__actions">
         <button class="editor-btn editor-btn--primary" id="editor-generate-embed" type="button">Сохранить и получить iframe</button>
-        <button class="editor-btn" id="editor-copy-link" type="button">Скопировать ссылку</button>
         <button class="editor-btn" id="editor-copy-iframe" type="button">Скопировать iframe</button>
-      </div>
-      <div class="editor-publish__box">
-        <label class="editor-field">
-          <span class="editor-publish__label">Ссылка</span>
-          <textarea class="editor-textarea editor-publish__code" id="editor-embed-link" readonly placeholder="Здесь появится ссылка для вставки"></textarea>
-        </label>
       </div>
       <div class="editor-publish__box">
         <label class="editor-field">
@@ -814,9 +807,7 @@
         reset: document.getElementById('editor-reset'),
         export: document.getElementById('editor-export'),
         generateEmbed: document.getElementById('editor-generate-embed'),
-        copyLink: document.getElementById('editor-copy-link'),
         copyIframe: document.getElementById('editor-copy-iframe'),
-        embedLink: document.getElementById('editor-embed-link'),
         embedCode: document.getElementById('editor-embed-code'),
         previewCurrent: document.getElementById('editor-preview-current'),
         previewModeCalm: document.getElementById('editor-preview-mode-calm'),
@@ -942,6 +933,7 @@
       const DEFAULT_THEME_PRESET = 'ocean';
       const PUBLISH_ENDPOINT = 'https://publisher-server-sh27.onrender.com/publish';
       const PUBLISH_KEY = 'secret4969';
+      const PUBLISHED_SITE_BASE = 'https://mevyx7.github.io/editor-momemt';
       draft = buildDraft(defaultLocale);
 
       function deepClone(value) {
@@ -1136,11 +1128,11 @@
       }
 
       function getPublishedGameUrl() {
-        return 'https://mevyx7.github.io/editor-momemt/index.html';
+        return `${PUBLISHED_SITE_BASE}/index.html`;
       }
 
       function buildIframeCode(url) {
-        return `<iframe src="${url}" width="1280" height="760" style="width:100%;max-width:1280px;height:760px;border:0;" allowfullscreen></iframe>`;
+        return `<iframe src="${url}" title="Момент истины" loading="lazy" scrolling="no" allowfullscreen style="display:block;width:100%;max-width:1280px;aspect-ratio:1280 / 760;height:auto;border:0;overflow:hidden;"></iframe>`;
       }
 
       async function publishProject() {
@@ -1176,7 +1168,6 @@
           : publishId;
         const link = `${getPublishedGameUrl()}?id=${encodeURIComponent(resolvedId)}`;
         const iframeCode = buildIframeCode(link);
-        if (dom.embedLink) dom.embedLink.value = link;
         if (dom.embedCode) dom.embedCode.value = iframeCode;
         return { id: resolvedId, link, iframeCode };
       }
@@ -1957,18 +1948,6 @@
           } catch (error) {
             dom.generateEmbed.textContent = originalText;
             window.alert(error.message || 'Не удалось опубликовать проект.');
-          }
-        });
-      }
-
-      if (dom.copyLink) {
-        dom.copyLink.addEventListener('click', async function () {
-          try {
-            const link = dom.embedLink && dom.embedLink.value ? dom.embedLink.value : '';
-            if (!link) throw new Error('Сначала опубликуй проект, чтобы получить ссылку.');
-            await copyTextWithFeedback(link, dom.copyLink, 'Ссылка скопирована');
-          } catch (error) {
-            window.alert(error.message || 'Не удалось скопировать ссылку.');
           }
         });
       }
