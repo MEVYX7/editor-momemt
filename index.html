@@ -2214,6 +2214,7 @@
       const LOCALES = CONTENT_SOURCE.locales || {};
       const FALLBACK_LOCALE = CONTENT_SOURCE.defaultLocale || 'ru';
       const PUBLISHED_SITE_BASE = 'https://mevyx7.github.io/editor-momemt';
+      const LEGACY_PUBLISHED_DATA_BASE = 'https://mevyx7.github.io/texts';
       const publishedGameId = new URLSearchParams(window.location.search).get('id');
 
       function getLocalePack(localeCode) {
@@ -3930,11 +3931,19 @@ function renderIndicator() {
 
       async function fetchPublishedPayload(id) {
         if (!id) return null;
-        const response = await fetch(`${PUBLISHED_SITE_BASE}/data/${id}.json`, { cache: 'no-store' });
-        if (!response.ok) {
-          throw new Error(`Failed to load published game (${response.status})`);
+        const candidates = [
+          `${PUBLISHED_SITE_BASE}/data/${id}.json`,
+          `${LEGACY_PUBLISHED_DATA_BASE}/data/${id}.json`
+        ];
+
+        let lastStatus = 0;
+        for (const url of candidates) {
+          const response = await fetch(url, { cache: 'no-store' });
+          if (response.ok) return response.json();
+          lastStatus = response.status;
         }
-        return response.json();
+
+        throw new Error(`Failed to load published game (${lastStatus || 'unknown'})`);
       }
 
       function initFromPayload(payload, options = {}) {
